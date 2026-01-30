@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dashboard</class>
+ <widget class="QMainWindow" name="dashboard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* =========================
+   MAIN WINDOW
+   ========================= */
+QWidget {
+    background-color: #191919;
+    color: white;
+    font-family: Segoe UI;
+    font-size: 13px;
+}
+
+/* =========================
+   LOGIN CARD (ORANGE BORDER)
+   ========================= */
+QFrame {
+    background-color: transparent;
+    padding: 16px;
+}
+
+/* =========================
+   TEXT
+   ========================= */
+QLabel {
+    color: #E0E0E0;
+}
+
+QLabel#lblTitle {
+    color: #FF9800;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* =========================
+   INPUT FIELDS (BORDER STYLE)
+   ========================= */
+QLineEdit {
+    background-color: transparent;
+    color: white;
+    border: 1.5px solid #FF9800;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+QComboBox {
+    background-color: transparent;
+    color: white;
+    border: 1.5px solid #FF9800;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+QDateEdit {
+    background-color: transparent;
+    color: white;
+    border: 1.5px solid #FF9800;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+QLineEdit:focus {
+    border: 2px solid #FFA726;
+}
+
+/* =========================
+   LOGIN BUTTON (OUTLINE STYLE)
+   ========================= */
+QPushButton {
+    background-color: transparent;
+    color: #FF9800;
+    font-weight: bold;
+    border: 2px solid #FF9800;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+QPushButton:hover {
+    background-color: rgba(255, 152, 0, 25);
+}
+
+QPushButton:pressed {
+    background-color: rgba(255, 152, 0, 60);
+    color: black;
+}
+
+/* =========================
+   DISABLED BUTTON
+   ========================= */
+QPushButton:disabled {
+    border-color: #555;
+    color: #555;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="lbldashboard">
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>What do u want to do?</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="btndashboard_input">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>-1</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Input</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btndashboard_save">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+            <pointsize>-1</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
