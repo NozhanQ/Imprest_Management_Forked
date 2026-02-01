@@ -8,7 +8,7 @@ class Expense_Receipt_Entry(QWidget):
     def __init__(self):
         super().__init__()
 
-        ui_path = Path(__file__).parent / "Expense_Receipt_Entry.ui"
+        ui_path = Path(__file__).parent / "Receipt_Entry_page.ui"
         loadUi(ui_path, self)
         self.setWindowTitle("Expense_Receipt_Entry")
         self.selected_image_path = None
@@ -35,7 +35,7 @@ class Expense_Receipt_Entry(QWidget):
         self.lblSelectPicture.setText("No file selected")
 
     def open_dashboard(self):
-        from app.ui.Dashboard import Dashboard
+        from app.ui.Dashboard_page import Dashboard
         self.dashboard = Dashboard()
         self.dashboard.show()
         self.close()
@@ -52,6 +52,7 @@ class Expense_Receipt_Entry(QWidget):
         source_pc = "PC-1"  # later we automate this
         self.open_dashboard()
         if not title:
+            return  # add QMessageBox later
             return  # add QMessageBox later
 
         insert_record( #TODO(KF): This function should be written in another layer. this is not pure UI.

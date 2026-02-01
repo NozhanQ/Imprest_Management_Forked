@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QDialog
 from PyQt6.uic import loadUi
 from pathlib import Path
-from app.ui.Dashboard import Dashboard
+from app.ui.Dashboard_page import Dashboard
 
 
 class MainWindow(QDialog):
