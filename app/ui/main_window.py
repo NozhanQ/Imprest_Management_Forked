@@ -26,4 +26,4 @@ class MainWindow(QDialog):
         if not result.ok:
             QMessageBox.warning(self, "Login", result.error)
             return
-        self.dashboard = self.nav.open_dashboard(self)
+        self.dashboard = self.nav.main_window_navigator(self)

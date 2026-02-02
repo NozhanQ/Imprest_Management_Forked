@@ -8,7 +8,6 @@ class LoginResult:
     ok: bool
     error: str = ""
 
-
 class main_window_logic:
     def validate_inputs(self, username: str, password: str) -> LoginResult:
         if not username:
@@ -20,3 +19,4 @@ class main_window_logic:
     def login(self, username: str, password: str) -> LoginResult:
         # later: check DB / API
         return self.validate_inputs(username, password)
+
