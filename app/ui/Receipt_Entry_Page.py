@@ -8,7 +8,7 @@ class Expense_Receipt_Entry(QWidget):
     def __init__(self):
         super().__init__()
 
-        ui_path = Path(__file__).parent / "Receipt_Entry_page.ui"
+        ui_path = Path(__file__).parent / "Expense_Receipt_Entry.ui"
         loadUi(ui_path, self)
         self.setWindowTitle("Expense_Receipt_Entry")
         self.selected_image_path = None
