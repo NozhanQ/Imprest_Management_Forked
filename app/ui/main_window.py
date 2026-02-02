@@ -13,7 +13,6 @@ class MainWindow(QDialog):
 
         self.dashboard = None
         self.setWindowTitle("My App")
-
         self.logic = main_window_logic()
         self.nav=Navigator()
         self.btnLogin.clicked.connect(self.on_login_clicked)

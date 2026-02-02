@@ -7,11 +7,13 @@ from app.data.data_base import insert_record
 class Expense_Receipt_Entry(QWidget):
     def __init__(self):
         super().__init__()
+        from app.controller.navigator import Navigator
 
         ui_path = Path(__file__).parent / "Expense_Receipt_Entry.ui"
         loadUi(ui_path, self)
         self.setWindowTitle("Expense_Receipt_Entry")
         self.selected_image_path = None
+        self.nav = Navigator()
         self.btnBrowse.clicked.connect(self.browse_image)
         self.btnClear.clicked.connect(self.clear_image)
         self.btnSave.clicked.connect(self.save_record)
@@ -35,10 +37,7 @@ class Expense_Receipt_Entry(QWidget):
         self.lblSelectPicture.setText("No file selected")
 
     def open_dashboard(self):
-        from app.ui.Dashboard_page import Dashboard
-        self.dashboard = Dashboard()
-        self.dashboard.show()
-        self.close()
+        self.dashboard = self.nav.expense_entry_page_navigator(self)
 
     def save_record(self): #TODO(KF): This function should be written in another layer. this is not pure UI.
         title = self.leInvoiceNumber.text()
