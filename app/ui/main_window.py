@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QMessageBox
 from PyQt6.uic import loadUi
 from pathlib import Path
-from app.controller.navigator import Navigator
 from app.controller.logic import main_window_logic
 
 
@@ -10,7 +9,7 @@ class MainWindow(QDialog):
         super().__init__()
         ui_path = Path(__file__).parent / "main_window.ui"
         loadUi(ui_path, self)
-
+        from app.controller.navigator import Navigator
         self.dashboard = None
         self.setWindowTitle("My App")
         self.logic = main_window_logic()

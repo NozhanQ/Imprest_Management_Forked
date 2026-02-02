@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QWidget, QFileDialog,QMessageBox
 from PyQt6.uic import loadUi
 from pathlib import Path
 from app.data.data_base import insert_record
+from app.controller.logic import receipt_entry_logic
 
 
 class Expense_Receipt_Entry(QWidget):
@@ -14,23 +15,18 @@ class Expense_Receipt_Entry(QWidget):
         self.setWindowTitle("Expense_Receipt_Entry")
         self.selected_image_path = None
         self.nav = Navigator()
+        self.logic=receipt_entry_logic()
         self.btnBrowse.clicked.connect(self.browse_image)
         self.btnClear.clicked.connect(self.clear_image)
         self.btnSave.clicked.connect(self.save_record)
 
 
-    def browse_image(self): #TODO(KF): This function should be written in another layer. this is not pure UI.
-        file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Select Image",
-            "",
-            "Images (*.png *.jpg *.jpeg *.bmp)"
-        )
-
-        if file_path:
-            self.selected_image_path = file_path
-            self.lblSelectPicture.setText(file_path)
-
+    def browse_image(self):
+        path = self.logic.browse_image(parent=self, title = "Select an image")
+        self.selected_image_path = path
+        self.lblSelectPicture.setText(path)
+        if not path:
+            return
 
     def clear_image(self):
         self.selected_image_path = None

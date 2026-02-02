@@ -1,6 +1,31 @@
-from PyQt6.uic.properties import QtWidgets
+from __future__ import annotations
+from pathlib import Path
+from typing import Optional, Tuple
+from PyQt6.QtWidgets import QFileDialog, QWidget
 from dataclasses import dataclass
 
+
+class receipt_entry_logic:
+    def browse_image(
+            self,
+            parent: QWidget,
+            title: str = "Select an image",
+            start_dir: Optional[str | Path] = None,
+    ) -> Optional[str]:
+        """
+        Opens a file dialog and returns the selected image path as a string.
+        Returns None if the user cancels.
+        """
+        start_dir_str = str(start_dir) if start_dir else ""
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            parent,
+            title,
+            start_dir_str,
+            "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp);;All Files (*)",
+        )
+
+        return file_path or None
 
 
 @dataclass
