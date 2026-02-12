@@ -5,7 +5,7 @@ import sqlite3
 def save_data(data: dict):
     insert_record(
         title=data["title"],
-        description=data["description"],
+        explanation=data["explanation"],
         amount=float(data["amount"]),
         record_date=data["record_date"],
         image_path=data["image_path"],
@@ -14,7 +14,6 @@ def save_data(data: dict):
         expense_type=data["expense_type"],
         company_name=data["company_name"]
     )
-
 
 
 class load_data():
@@ -28,38 +27,50 @@ class load_data():
     def fetch_all(query, params=()):
         conn = load_data.get_connection()
         cursor = conn.cursor()
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
-        return rows
+        try:
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            return rows
+        finally:
+            cursor.close()
+            conn.close()
 
-    def get_invoices_by_invoice_no(text):
+    @staticmethod
+    def get_invoices_by_title(text):
         query = """
-            SELECT invoice_no, explanation, record_date, amount, image_path
+            SELECT title, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
-            WHERE invoice_no LIKE ?
+            WHERE title LIKE ?
         """
         return load_data.fetch_all(query, (f"%{text}%",))
 
-    def get_invoices_by_registration_date(text):
+    @staticmethod
+    def get_invoices_by_registration_date(date_str):
         query = """
-            SELECT invoice_no, explanation, record_date, amount, image_path
+            SELECT title, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
-            WHERE registration_date LIKE ?
-        """
-        return load_data.fetch_all(query, (f"%{text}%",))
+            WHERE record_date >= ? \
+              AND record_date < ?
+            ORDER BY record_date DESC \
+            """
+        start = f"{date_str}T00:00:00"
+        end = f"{date_str}T23:59:59.999999"
+        return load_data.fetch_all(query, (start, end))
 
-    def get_invoices_by_login_date(text):
+    @staticmethod
+    def get_invoices_by_login_date(date_str):
         query = """
-            SELECT invoice_no, explanation,  record_date, amount, image_path
+            SELECT title, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
-            WHERE login_date LIKE ?
-        """
-        return load_data.fetch_all(query, (f"%{text}%",))
+            WHERE last_modified LIKE ?
+            ORDER BY last_modified DESC \
+            """
+        return load_data.fetch_all(query, (f"{date_str}%",))
 
+    @staticmethod
     def get_invoices_by_explanation(text):
         query = """
-            SELECT invoice_no, explanation, record_date, amount, image_path
+            SELECT title, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
             WHERE explanation LIKE ?
         """

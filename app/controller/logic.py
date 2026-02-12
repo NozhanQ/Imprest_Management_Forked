@@ -54,31 +54,33 @@ class calling_page_logic:
     def __init__(self):
         super().__init__()
 
-
     def load_invoices(self):
-        rows = []
+        # Your repo functions return (headers, rows), so we ignore headers
         if self.radioButton1.isChecked():
-            rows = repo.load_data.get_invoices_by_invoice_no(
-                self.leInvoiceNo.text()
-            )
+            rows = self.repo.get_invoices_by_title(self.leInvoiceNo.text().strip())
+
 
         elif self.radioButton2.isChecked():
-            rows = repo.load_data.get_invoices_by_registration_date(
-                self.deRegstrationDate.text()
-            )
+            date_str = self.deRegstrationDate.date().toString("yyyy-MM-dd")
+            rows = self.repo.get_invoices_by_registration_date(date_str)
 
         elif self.radioButton3.isChecked():
-            rows = repo.load_data.get_invoices_by_login_date(
-                self.deLoginStart.text()
-            )
+            date_str = self.deLoginStart.date().toString("yyyy-MM-dd")
+            rows = self.repo.get_invoices_by_login_date(date_str)
 
-        elif self.radioButton4.isChecked():
-            rows = repo.load_data.get_invoices_by_explanation(
-                self.leExplanation.text()
-            )
+        else:  # radioButton4
+            rows = self.repo.get_invoices_by_explanation(self.leExplanation.text().strip())
 
-        self.populate_table(rows)
+        # Clear + keep the static first row
+        self.model.clear()
+        self.model.setColumnCount(len(self.headers))
+        self.model.setHorizontalHeaderLabels([""] * len(self.headers))
+        self.model.appendRow([QStandardItem(h) for h in self.headers])
 
+        # Fill DB rows cell-by-cell
+        for row in rows:
+            items = [QStandardItem("" if v is None else str(v)) for v in row]
+            self.model.appendRow(items)
 
     def populate_table(self, rows):
         model = QStandardItemModel()

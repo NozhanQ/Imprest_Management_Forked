@@ -22,7 +22,7 @@ def create_tables():
                         TEXT
                         NOT
                         NULL,
-                        description
+                        explanation
                         TEXT,
                         amount
                         REAL,
@@ -47,16 +47,15 @@ def create_tables():
     conn.close()
 
 
-def insert_record(title, description, amount, record_date, image_path, source_pc, expense_center, expense_type,company_name):
+def insert_record(title, explanation, amount, record_date, image_path, source_pc, expense_center, expense_type,company_name):
     conn = get_connection()
     cur = conn.cursor()
 
     record_id = str(uuid.uuid4())
     now = datetime.utcnow().isoformat()
-
     cur.execute("""
     INSERT INTO records (
-        id, title, description, amount,
+        id, title, explanation, amount,
         record_date, image_path,
         last_modified, source_pc, expense_center, expense_type, company_name
     )
@@ -64,7 +63,7 @@ def insert_record(title, description, amount, record_date, image_path, source_pc
     """, (
         record_id,
         title,
-        description,
+        explanation,
         amount,
         record_date,
         image_path,
