@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 from PyQt6.QtWidgets import QFileDialog, QWidget
 from dataclasses import dataclass
-from app.data import user_repository as repo
 from PyQt6.QtGui import QStandardItem, QStandardItemModel
 
 
@@ -28,7 +27,6 @@ class receipt_entry_logic:
         )
 
         return file_path or None
-
 
 
 @dataclass

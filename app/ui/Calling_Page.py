@@ -20,6 +20,7 @@ class Calling_Page(QWidget):
 
         self.model.appendRow([QStandardItem(h) for h in self.headers])  # static first row
         self.tableView.setModel(self.model)
+        self.tableView.horizontalHeader().setVisible(False)
         self.tableView.verticalHeader().setVisible(False)  # removes row numbers + corner block
         self.tableView.setCornerButtonEnabled(False)  # extra safety
         self.stackedWidget.setCurrentIndex(3)
