@@ -47,7 +47,7 @@ class Expense_Receipt_Entry(QWidget):
     def save_record(self):
         data = {
             "title": self.leInvoiceNumber.text(),
-            "description": self.teExplanation.toPlainText(),
+            "explanation": self.teExplanation.toPlainText(),
             "amount": self.leExpense.text(),
             "record_date": self.deDate.date().toString("yyyy-MM-dd"),
             "image_path": self.selected_image_path,

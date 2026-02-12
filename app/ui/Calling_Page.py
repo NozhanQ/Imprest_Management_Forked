@@ -4,14 +4,32 @@ from PyQt6.uic import loadUi
 from pathlib import Path
 from app.data.user_repository import load_data
 from app.controller.logic import calling_page_logic
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 class Calling_Page(QWidget):
     def __init__(self):
         super().__init__()
         ui_path = Path(__file__).parent / "Calling_Page.ui"
         loadUi(ui_path, self)
+        self.headers = ["title", "explanation", "record_date", "amount",
+                        "expense_center", "expense_type", "company_name"]
+
+        self.model = QStandardItemModel(self)
+        self.model.setColumnCount(len(self.headers))
+        self.model.setHorizontalHeaderLabels([""] * len(self.headers))  # keep header blank
+
+        self.model.appendRow([QStandardItem(h) for h in self.headers])  # static first row
+        self.tableView.setModel(self.model)
+        self.tableView.verticalHeader().setVisible(False)  # removes row numbers + corner block
+        self.tableView.setCornerButtonEnabled(False)  # extra safety
         self.stackedWidget.setCurrentIndex(3)
         self.setWindowTitle("Calling_Page")
+
+        self.logic = calling_page_logic()
+
+        self.logic.repo = load_data()
+        self.logic.model = self.model
+        self.logic.headers = self.headers
 
         # Radio buttons
         self.radioButton1.setChecked(True)
@@ -33,8 +51,6 @@ class Calling_Page(QWidget):
         self.deLoginStart.setDate(self.deLoginStart.minimumDate())
 
         #loading data
-        repo = load_data()
-        self.logic = calling_page_logic()
         self.logic.tableView = self.tableView
 
         self.logic.radioButton1 = self.radioButton1

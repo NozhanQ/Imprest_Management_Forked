@@ -4,7 +4,7 @@ create_tables()
 
 insert_record(
     title="Test from Python",
-    description="This was inserted using sqlite3",
+    explanation="This was inserted using sqlite3",
     amount=123.45,
     record_date="2026-01-01",
     image_path=None,
