@@ -27,13 +27,11 @@ class load_data():
     def fetch_all(query, params=()):
         conn = load_data.get_connection()
         cursor = conn.cursor()
-        try:
-            cursor.execute(query, params)
-            rows = cursor.fetchall()
-            return rows
-        finally:
-            cursor.close()
-            conn.close()
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return rows
 
     @staticmethod
     def get_invoices_by_title(text):
