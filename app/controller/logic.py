@@ -1,21 +1,23 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import Optional
 from dataclasses import dataclass
-from app.data.data_base import Load_Save_Data, DataBase
-from PyQt6.QtCore import Qt, QRect
-from PyQt6.QtGui import QPainter, QStandardItem, QStandardItemModel, QPageSize, QPageLayout
-from PyQt6.QtPrintSupport import QPrinter
+from app.data.data_base import Load_Save_Data
+from PyQt6.QtGui import QStandardItem, QStandardItemModel
 from PyQt6.QtWidgets import (
-    QWidget, QTableView, QFileDialog, QMessageBox
+    QWidget, QFileDialog, QMessageBox
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
-from PyQt6.QtCore import Qt, QRect, QFile
-from PyQt6.QtGui import QPainter, QPen, QFont, QImage
+from typing import Iterable, Optional, Union
+import ast
+from pathlib import Path
+
+from PyQt6.QtCore import Qt, QRect, QRectF
+from PyQt6.QtGui import QPainter, QPen, QImageReader, QFont
 from PyQt6.QtPrintSupport import QPrinter
 from PyQt6.QtGui import QPageSize, QPageLayout
-from PyQt6.QtWidgets import QTableView
+
+
+PathLike = Union[str, Path]
 
 
 
@@ -68,7 +70,6 @@ class calling_page_logic:
         if self.rbInvoiceNo.isChecked():
             rows = Load_Save_Data.get_invoices_by_Invoice_NO(self.leInvoiceNo.text().strip())
 
-
         elif self.rbTimeRange.isChecked():
             date_str_start = self.deLoginStart.date().toString("yyyy-MM-dd")
             date_str_end = self.deLoginEnd.date().toString("yyyy-MM-dd")
@@ -92,6 +93,26 @@ class calling_page_logic:
             items = [QStandardItem("" if v is None else str(v)) for v in row]
             self.model.appendRow(items)
 
+
+    def sending_img_path(self) -> list[str]:
+        if self.rbInvoiceNo.isChecked():
+            img_path = Load_Save_Data().id_by_invoice_no(self.leInvoiceNo.text().strip())
+
+        elif self.rbTimeRange.isChecked():
+            date_str_start = self.deLoginStart.date().toString("yyyy-MM-dd")
+            date_str_end = self.deLoginEnd.date().toString("yyyy-MM-dd")
+            img_path = Load_Save_Data().id_by_time_range(date_str_start, date_str_end)
+
+        elif self.rbRegistrationDate.isChecked():
+            date_str = self.deRegstrationDate.date().toString("yyyy-MM-dd")
+            img_path = Load_Save_Data().id_by_regestrationdate(date_str)
+
+        else:  # rbExplanation
+            img_path = Load_Save_Data().id_by_explanation(self.leExplanation.text().strip())
+
+        return img_path
+
+
     def populate_table(self, rows):
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels([
@@ -108,49 +129,169 @@ class calling_page_logic:
 
 
 
-    def export_tableview_to_pdf(table: QTableView, filename: str, image_col_name: str = "image_path") -> None:
+    def export_tableview_to_pdf(
+            self,
+            table,
+            filename: str,
+            image_col_name: str = "image_path",
+            extra_image_sources=None,
+            recursive: bool = False
+    ) -> None:
         model = table.model()
         if model is None:
             raise RuntimeError("Table has no model")
 
-        printer = QPrinter(QPrinter.PrinterMode.ScreenResolution)
+        printer = QPrinter(QPrinter.PrinterMode.HighResolution)
         printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
         printer.setOutputFileName(filename)
-
         printer.setPageSize(QPageSize(QPageSize.PageSizeId.A4))
         printer.setPageOrientation(QPageLayout.Orientation.Portrait)
+        printer.setResolution(300)
 
-        painter = QPainter(printer)
-        painter.setPen(QPen(Qt.GlobalColor.black, 1))
-
-        if not painter.isActive():
+        painter = QPainter()
+        if not painter.begin(printer):
             raise RuntimeError("Could not start PDF painter")
 
-        try:
-            page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
-            left = int(page_rect.left())
-            top = int(page_rect.top())
-            right = int(page_rect.right())
-            bottom = int(page_rect.bottom())
-            avail_w = int(right - left)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+        painter.setPen(QPen(Qt.GlobalColor.black, 1))
 
-            painter.setFont(table.font())
+        def pt_to_px_x(pt: float) -> int:
+            return int(pt * printer.logicalDpiX() / 72.0)
+
+        def pt_to_px_y(pt: float) -> int:
+            return int(pt * printer.logicalDpiY() / 72.0)
+
+        def _clean_path(s) -> str:
+            return str(s).strip().strip('"').strip("'").strip()
+
+        def _flatten_values(v):
+            if v is None:
+                return []
+            if isinstance(v, Path):
+                return [str(v)]
+            if isinstance(v, str):
+                s = _clean_path(v)
+                if (s.startswith("(") and s.endswith(")")) or (s.startswith("[") and s.endswith("]")):
+                    try:
+                        parsed = ast.literal_eval(s)
+                        return _flatten_values(parsed)
+                    except Exception:
+                        return [s]
+                return [s]
+            if isinstance(v, (list, tuple, set)):
+                if isinstance(v, tuple) and len(v) == 1:
+                    return _flatten_values(v[0])
+                out = []
+                for item in v:
+                    out.extend(_flatten_values(item))
+                return [x for x in out if x]
+            return [str(v)]
+
+        def _resolve_source_strings(raw_values, base_dir: Path):
+            out = []
+            for s in _flatten_values(raw_values):
+                s = _clean_path(s)
+                if not s:
+                    continue
+                p = Path(s)
+                if p.is_absolute():
+                    out.append(str(p))
+                else:
+                    if ("\\" not in s) and ("/" not in s) and (":" not in s):
+                        out.append(str(base_dir / s))
+                    else:
+                        out.append(str(p))
+            return out
+
+        def find_col_by_header(header_name: str):
+            for c in range(model.columnCount()):
+                h = model.headerData(c, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
+                if h is not None and str(h) == header_name:
+                    return c
+            return None
+
+        def sources_from_model():
+            col = find_col_by_header(image_col_name)
+            if col is None:
+                return []
+            srcs = []
+            for r in range(model.rowCount()):
+                v = model.data(model.index(r, col), Qt.ItemDataRole.DisplayRole)
+                if v:
+                    srcs.append(v)
+            return srcs
+
+        def collect_images(sources, recursive_flag: bool):
+            all_files = []
+            for src in sources:
+                p = Path(_clean_path(src))
+                if p.is_dir():
+                    it = p.rglob("*") if recursive_flag else p.iterdir()
+                    for f in it:
+                        if f.is_file():
+                            all_files.append(f)
+                elif p.is_file():
+                    all_files.append(p)
+
+            readable = []
+            for f in sorted(all_files):
+                r = QImageReader(str(f))
+                r.setAutoTransform(True)
+                if r.canRead():
+                    readable.append(f)
+            return readable
+
+        try:
+            base_family = table.font().family()
+            font = QFont(base_family)
+            font.setPointSize(13)
+            painter.setFont(font)
             fm = painter.fontMetrics()
-            row_h = int(fm.height() + 10)
-            header_h = int(row_h + 4)
-            cell_pad = 6
+
+            page = printer.pageRect(QPrinter.Unit.DevicePixel)
+
+            margin_x = pt_to_px_x(24)
+            margin_y = pt_to_px_y(24)
+
+            left = int(page.left() + margin_x)
+            top = int(page.top() + margin_y)
+            right = int(page.right() - margin_x)
+            bottom = int(page.bottom() - margin_y)
+
+            avail_w = right - left
+
+            cell_pad = pt_to_px_x(4)
+            row_h = int(fm.height() + pt_to_px_y(10))
+            header_h = int(row_h + pt_to_px_y(3))
 
             rows = model.rowCount()
             cols = model.columnCount()
 
-            col_widths = [max(200, table.columnWidth(c)) for c in range(cols)]
-            total_w = sum(col_widths)
+            sample_rows = min(rows, 80)
+            col_widths = []
+            min_w = pt_to_px_x(60)
+            max_w = pt_to_px_x(200)
 
+            for c in range(cols):
+                header = str(model.headerData(c, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or "")
+                w = fm.horizontalAdvance(header) + 2 * cell_pad
+
+                for r in range(sample_rows):
+                    val = model.data(model.index(r, c), Qt.ItemDataRole.DisplayRole)
+                    txt = "" if val is None else str(val)
+                    w = max(w, fm.horizontalAdvance(txt) + 2 * cell_pad)
+
+                w = max(min_w, min(int(w), max_w))
+                col_widths.append(w)
+
+            total_w = sum(col_widths)
             if total_w > avail_w:
                 scale = avail_w / total_w
-                col_widths = [max(60, int(w * scale)) for w in col_widths]
-            else:
-                col_widths = [int(w) for w in col_widths]
+                col_widths = [max(pt_to_px_x(40), int(w * scale)) for w in col_widths]
+            elif total_w < avail_w and cols > 0:
+                extra = (avail_w - total_w) // cols
+                col_widths = [w + extra for w in col_widths]
 
             def draw_table_header(y: int) -> int:
                 x = left
@@ -158,7 +299,6 @@ class calling_page_logic:
                     w = col_widths[c]
                     rect = QRect(int(x), int(y), int(w), int(header_h))
                     painter.drawRect(rect)
-
                     text = str(model.headerData(c, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or "")
                     painter.drawText(
                         rect.adjusted(cell_pad, 0, -cell_pad, 0),
@@ -168,16 +308,19 @@ class calling_page_logic:
                     x += w
                 return y + header_h
 
-            def new_page():
-                printer.newPage()
-
-            # ---------- DRAW TABLE ----------
             y = top
             y = draw_table_header(y)
 
             for r in range(rows):
                 if y + row_h > bottom:
-                    new_page()
+                    printer.newPage()
+                    page2 = printer.pageRect(QPrinter.Unit.DevicePixel)
+
+                    left = int(page2.left() + margin_x)
+                    top = int(page2.top() + margin_y)
+                    right = int(page2.right() - margin_x)
+                    bottom = int(page2.bottom() - margin_y)
+
                     y = top
                     y = draw_table_header(y)
 
@@ -187,8 +330,7 @@ class calling_page_logic:
                     rect = QRect(int(x), int(y), int(w), int(row_h))
                     painter.drawRect(rect)
 
-                    idx = model.index(r, c)
-                    val = model.data(idx, Qt.ItemDataRole.DisplayRole)
+                    val = model.data(model.index(r, c), Qt.ItemDataRole.DisplayRole)
                     text = "" if val is None else str(val)
 
                     align = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
@@ -200,11 +342,93 @@ class calling_page_logic:
 
                     painter.drawText(rect.adjusted(cell_pad, 0, -cell_pad, 0), align, text)
                     x += w
-
                 y += row_h
+
+            base_dir = Path(r"D:\Work\Imprest_Management\Imprest_Management_Forked\image_records")
+
+            sources = []
+            sources.extend(_resolve_source_strings(sources_from_model(), base_dir))
+
+            if extra_image_sources:
+                sources.extend(_resolve_source_strings(extra_image_sources, base_dir))
+
+            image_files = collect_images(sources, recursive)
+
+            if not image_files:
+                id_ = self.sending_img_path()
+                fallback_sources = _resolve_source_strings(id_, base_dir)
+                sources.extend(fallback_sources)
+                image_files = collect_images(fallback_sources, recursive_flag=True)
+
+            if image_files:
+                printer.newPage()
+
+                page_img = printer.pageRect(QPrinter.Unit.DevicePixel)
+                left_i = int(page_img.left() + margin_x)
+                top_i = int(page_img.top() + margin_y)
+                right_i = int(page_img.right() - margin_x)
+                bottom_i = int(page_img.bottom() - margin_y)
+                target = QRectF(left_i, top_i, right_i - left_i, bottom_i - top_i)
+
+                for idx, img_path in enumerate(image_files):
+                    if idx > 0:
+                        printer.newPage()
+                        page_img = printer.pageRect(QPrinter.Unit.DevicePixel)
+                        left_i = int(page_img.left() + margin_x)
+                        top_i = int(page_img.top() + margin_y)
+                        right_i = int(page_img.right() - margin_x)
+                        bottom_i = int(page_img.bottom() - margin_y)
+                        target = QRectF(left_i, top_i, right_i - left_i, bottom_i - top_i)
+
+                    reader = QImageReader(str(img_path))
+                    reader.setAutoTransform(True)
+                    try:
+                        reader.setDecideFormatFromContent(True)
+                    except Exception:
+                        pass
+
+                    if not reader.canRead():
+                        painter.drawText(
+                            QRect(int(target.x()), int(target.y()), int(target.width()), pt_to_px_y(24)),
+                            Qt.AlignmentFlag.AlignLeft,
+                            f"Cannot read: {img_path}"
+                        )
+                        continue
+
+                    img = reader.read()
+                    if img.isNull():
+                        painter.drawText(
+                            QRect(int(target.x()), int(target.y()), int(target.width()), pt_to_px_y(24)),
+                            Qt.AlignmentFlag.AlignLeft,
+                            f"Null image: {img_path}"
+                        )
+                        continue
+
+                    iw, ih = img.width(), img.height()
+                    scale = min(target.width() / iw, target.height() / ih)
+                    dw, dh = iw * scale, ih * scale
+                    x = target.x() + (target.width() - dw) / 2
+                    y = target.y() + (target.height() - dh) / 2
+                    dest = QRectF(x, y, dw, dh)
+                    painter.drawImage(dest, img)
+
+            else:
+                printer.newPage()
+                page_dbg = printer.pageRect(QPrinter.Unit.DevicePixel)
+                msg_rect = QRect(
+                    int(page_dbg.left() + margin_x),
+                    int(page_dbg.top() + margin_y),
+                    int(page_dbg.width() - 2 * margin_x),
+                    int(pt_to_px_y(200))
+                )
+                painter.drawText(
+                    msg_rect,
+                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                    "No photos found!\nSources:\n- " + "\n- ".join(map(str, sources))
+                )
+
         finally:
             painter.end()
-
 
     def export_tableview_to_excel(self, view):
         model = view.model()
