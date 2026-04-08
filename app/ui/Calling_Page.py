@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QDate
 from PyQt6.uic import loadUi
 from pathlib import Path
-from app.controller.logic import calling_page_logic
+from app.controller.logic import calling_page_logic, exporting
 from app.data.data_base import Load_Save_Data
 from app.controller.navigator import Navigator
 from PyQt6.QtGui import QStandardItemModel
@@ -33,6 +33,7 @@ class Calling_Page(QWidget):
         self.UI.setWindowTitle("Calling_Page")
 
         self.logic = calling_page_logic()
+        self.export = exporting()
         self.logic.repo = Load_Save_Data()
         self.logic.model = self.model
         self.logic.headers = self.headers
@@ -90,7 +91,7 @@ class Calling_Page(QWidget):
     def on_save_pdf_clicked(self):
         path, _ = QFileDialog.getSaveFileName(self, "Save PDF", "results.pdf", "PDF (*.pdf)")
         if path:
-            self.logic.export_tableview_to_pdf(table=self.UI.tableView, filename=path)
+            self.export.export_tableview_to_pdf(table=self.UI.tableView, filename=path)
 
     def on_save_excel_clicked(self):
-        calling_page_logic().export_tableview_to_excel(self.UI.tableView)
+        self.export.export_tableview_to_excel(self.UI.tableView)
