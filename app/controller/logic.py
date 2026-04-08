@@ -7,17 +7,9 @@ from PyQt6.QtWidgets import (
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
-from typing import Iterable, Optional, Union
-from PyQt6.QtPrintSupport import QPrinter
+from typing import Optional, Union
 from pathlib import Path
-import ast
-from PyQt6.QtCore import Qt, QRect, QRectF
-from PyQt6.QtGui import QImageReader
-from pathlib import Path
-from PyQt6.QtCore import Qt, QRect, QRectF
-from PyQt6.QtGui import QPainter, QFont, QImageReader
-from PyQt6.QtPrintSupport import QPrinter
-from PyQt6.QtGui import QPageSize, QPageLayout
+from PyQt6.QtCore import Qt
 
 
 
@@ -44,6 +36,20 @@ class receipt_entry_logic:
         return file_paths
 
 
+    def add_image_logic(self, parent):
+        new_paths = self.browse_image(parent=parent, title="Add images", start_dir="D:\Work\Imprest_Management\Imprest_Management_Forked")
+        if not new_paths:
+            return
+
+        # initialize if not present
+        if not hasattr(self, "selected_image_paths"):
+            self.selected_image_paths = []
+
+        # add without duplicates
+        for p in new_paths:
+            if p not in self.selected_image_paths:
+                self.selected_image_paths.append(p)
+
 
 
 @dataclass
@@ -60,7 +66,6 @@ class main_window_logic:
         return LoginResult(True)
 
     def login(self, username: str, password: str) -> LoginResult:
-        # later: check DB / API
         return self.validate_inputs(username, password)
 
 
@@ -132,6 +137,10 @@ class calling_page_logic:
         self.tableView.setModel(model)
 
 
+
+class exporting:
+    def __init__(self):
+        super().__init__()
 
     def export_tableview_to_pdf(
             self,
@@ -413,6 +422,7 @@ class calling_page_logic:
 
         finally:
             painter.end()
+
 
     def export_tableview_to_excel(self, view):
         model = view.model()

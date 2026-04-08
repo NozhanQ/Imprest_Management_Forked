@@ -23,22 +23,11 @@ class Expense_Receipt_Entry(QWidget):
         self.UI.btnCancel.clicked.connect(self.open_dashboard)
         self.UI.btnSave.clicked.connect(self.save_record)
 
+
     def add_images(self):
-        new_paths = self.logic.browse_image(parent=self, title="Add images")
-        if not new_paths:
-            return
-
-        # initialize if not present
-        if not hasattr(self, "selected_image_paths"):
-            self.selected_image_paths = []
-
-        # add without duplicates
-        for p in new_paths:
-            if p not in self.selected_image_paths:
-                self.selected_image_paths.append(p)
-
-        self.UI.lblSelectPicture.setText(f"{len(self.selected_image_paths)} image(s) selected")
-        self.UI.lblSelectPicture.setToolTip("\n".join(self.selected_image_paths))
+        self.logic.add_image_logic(self)
+        self.UI.lblSelectPicture.setText(f"{len(self.logic.selected_image_paths)} image(s) selected")
+        self.UI.lblSelectPicture.setToolTip("\n".join(self.logic.selected_image_paths))
 
 
     def clear_image(self):
@@ -56,7 +45,7 @@ class Expense_Receipt_Entry(QWidget):
             "explanation": self.UI.teExplanation.toPlainText(),
             "amount": self.UI.leExpense.text(),
             "record_date": self.UI.deDate.date().toString("yyyy-MM-dd"),
-            "image_paths": "|".join(self.selected_image_paths),
+            "image_paths": "|".join(self.logic.selected_image_paths),
             "expense_center": self.UI.cbExpenseCenter.currentText(),
             "expense_type": self.UI.cbExpenseType.currentText(),
             "company_name": self.UI.cbCompany.currentText(),
