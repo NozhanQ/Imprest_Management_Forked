@@ -6,14 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
-    <height>640</height>
+    <width>1000</width>
+    <height>722</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>900</width>
+    <width>1000</width>
     <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>900</width>
+    <height>722</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -343,7 +349,7 @@ Loading records</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>980</width>
+     <width>1000</width>
      <height>24</height>
     </rect>
    </property>
