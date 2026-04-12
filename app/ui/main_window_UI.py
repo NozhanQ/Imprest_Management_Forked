@@ -5,7 +5,7 @@ from app.controller.logic import main_window_logic
 
 
 class MainWindow(QDialog):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         ui_path = Path(__file__).parent / "main_window.ui"
         self.UI = loadUi(ui_path, self)
@@ -22,6 +22,6 @@ class MainWindow(QDialog):
 
         result = self.logic.login(username, password)
         if not result.ok:
-            QMessageBox.warning(self, "Login", result.error)
+            QMessageBox.warning(self, "Login", result.error_message)
             return
         self.nav.main_window_navigator(self)

@@ -6,18 +6,18 @@ from typing import Optional
 
 
 class Load_Save_Data:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
     DB_PATH = Path(__file__).parent / "app.db"
 
 
     @classmethod
-    def get_connection(self):
+    def get_connection(self) -> None:
         return sqlite3.connect(self.DB_PATH)
 
 
     @classmethod
-    def fetch_all(self, query, params=None):
+    def fetch_all(self, query, params=None) -> None:
         conn = self.get_connection()
         cur = conn.cursor()
         cur.execute(query,params)
@@ -27,7 +27,7 @@ class Load_Save_Data:
 
 
     @classmethod
-    def get_invoices_by_Invoice_NO(self, Invoice_NO):
+    def get_invoices_by_Invoice_NO(self, Invoice_NO) -> None:
         query="""
             SELECT Invoice_NO, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
@@ -37,7 +37,7 @@ class Load_Save_Data:
 
 
     @classmethod
-    def get_invoices_by_explanation(self, explanation):
+    def get_invoices_by_explanation(self, explanation) -> None:
         query="""
             SELECT Invoice_NO, explanation, record_date, amount, expense_center,expense_type,company_name
             FROM records
@@ -47,7 +47,7 @@ class Load_Save_Data:
 
 
     @classmethod
-    def get_invoices_by_regestrationdate(self, regestrationdate):
+    def get_invoices_by_regestrationdate(self, regestrationdate) -> None:
         query="""
             SELECT Invoice_NO, explanation, record_date, amount, expense_center, expense_type, company_name
             FROM records
@@ -57,7 +57,7 @@ class Load_Save_Data:
 
 
     @classmethod
-    def get_invoices_by_time_range(self, startdate,enddate):
+    def get_invoices_by_time_range(self, startdate,enddate) -> None:
         query="""
         SELECT Invoice_NO, explanation, record_date, amount, expense_center,expense_type,company_name
         FROM records
@@ -72,7 +72,7 @@ class Load_Save_Data:
 
 
     @staticmethod
-    def save_data(data: dict):
+    def save_data(data: dict) -> None:
         id: int = DataBase().insert_record(
             Invoice_NO=data["Invoice NO"],
             explanation=data["explanation"],
@@ -102,46 +102,27 @@ class Load_Save_Data:
 
 class DataBase:
     DB_PATH = Path(__file__).parent / "app.db"
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
 
     @classmethod
-    def get_connection(self):
+    def get_connection(self) -> None:
         return sqlite3.connect(self.DB_PATH)
 
 
     @classmethod
-    def create_tables(self):
+    def create_tables(self) -> None:
         query = """ CREATE TABLE IF NOT EXISTS records
                         (
-                            id
-                            TEXT
-                            PRIMARY
-                            KEY,
-                            Invoice_NO
-                            TEXT
-                            NOT
-                            NULL,
-                            explanation
-                            TEXT,
-                            amount
-                            REAL,
-                            record_date
-                            TEXT,
-                            image_path
-                            TEXT,
-                            last_modified
-                            TEXT
-                            NOT
-                            NULL,
-                            source_pc
-                            TEXT
-                            NOT
-                            NULL,
-                            deleted
-                            INTEGER
-                            DEFAULT
+                            id TEXT PRIMARY KEY,
+                            Invoice_NO TEXT NOT NULL,
+                            explanation TEXT, amount REAL,
+                            record_date TEXT,
+                            image_path TEXT,
+                            last_modified TEXT NOT NULL,
+                            source_pc TEXT NOT NULL,
+                            deleted INTEGER DEFAULT
                             0
                         ) """
         conn= self.get_connection()
@@ -152,7 +133,7 @@ class DataBase:
 
 
 
-    def insert_record(self,Invoice_NO, explanation, amount, record_date, image_path, source_pc, expense_center, expense_type,company_name) -> int:
+    def insert_record(self,Invoice_NO, explanation, amount, record_date, image_path, source_pc, expense_center, expense_type,company_name) -> str:
         conn = self.get_connection()
         cur = conn.cursor()
         record_id = str(uuid.uuid4())
@@ -192,7 +173,7 @@ class ImageStore:
 
     #Making new folder
     @classmethod
-    def ensure_record_folder(cls, record_id: int) -> Path:
+    def create_folder(cls, record_id: int) -> Path:
         folder = cls.BASE_DIR / str(record_id)
         folder.mkdir(parents=True, exist_ok=True)
         return folder
@@ -200,7 +181,7 @@ class ImageStore:
     #Copying images in that folder
     @classmethod
     def copy_images_into_record_folder(cls, record_id: int, original_paths: list[str]) -> list[str]:
-        folder = cls.ensure_record_folder(record_id)
+        folder = cls.create_folder(record_id)
         copied_paths: list[str] = []
 
         for i, src in enumerate(original_paths, start=1):

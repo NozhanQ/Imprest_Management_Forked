@@ -6,7 +6,7 @@ from app.controller.logic import receipt_entry_logic
 from app.controller.navigator import Navigator
 
 class Expense_Receipt_Entry(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         ui_path = Path(__file__).parent / "Expense_Receipt_Entry.ui"
@@ -24,22 +24,22 @@ class Expense_Receipt_Entry(QWidget):
         self.UI.btnSave.clicked.connect(self.save_record)
 
 
-    def add_images(self):
+    def add_images(self) -> None:
         self.logic.add_image_logic(self)
         self.UI.lblSelectPicture.setText(f"{len(self.logic.selected_image_paths)} image(s) selected")
         self.UI.lblSelectPicture.setToolTip("\n".join(self.logic.selected_image_paths))
 
 
-    def clear_image(self):
+    def clear_image(self) -> None:
         self.selected_image_path = None
         self.UI.lblSelectPicture.setText("No file selected")
 
 
-    def open_dashboard(self):
+    def open_dashboard(self) -> None:
         self.nav.expense_entry_page_navigator(self)
 
 
-    def save_record(self):
+    def save_record(self) -> None:
         data = {
             "Invoice NO": self.UI.leInvoiceNumber.text(),
             "explanation": self.UI.teExplanation.toPlainText(),

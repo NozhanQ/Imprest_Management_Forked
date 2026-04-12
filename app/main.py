@@ -7,7 +7,7 @@ from app.data.data_base import DataBase
 #.\.venv2\Scripts\activate
 #python -m app.main
 
-def main():
+def main() -> None:
     DataBase.create_tables()
     app = QApplication(sys.argv)
     window = MainWindow()

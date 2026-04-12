@@ -3,7 +3,7 @@ from PyQt6.uic import loadUi
 from pathlib import Path
 
 class Dashboard(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         from app.controller.navigator import Navigator
 
@@ -17,7 +17,7 @@ class Dashboard(QMainWindow):
 
 
 
-    def Input_Clicked(self):
+    def Input_Clicked(self) -> None:
         self.nav.dashboard_page_navigator_expense_entry(self)
-    def Save_Clicked(self):
+    def Save_Clicked(self) -> None:
         self.nav.dashboard_page_navigator_calling_page(self)
