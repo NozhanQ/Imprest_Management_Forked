@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QWidget, QFileDialog
 
 
 class Calling_Page(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # Load UI made in Qt Designer
@@ -77,17 +77,17 @@ class Calling_Page(QWidget):
         self.UI.btnSaveasPDF.clicked.connect(self.on_save_pdf_clicked)
         self.UI.btnSaveasexcel.clicked.connect(self.on_save_excel_clicked)
 
-    def change_page(self, index):
+    def change_page(self, index) -> None:
         if self.sender().isChecked():
             self.UI.stackedWidget.setCurrentIndex(index)
 
-    def open_dashboard(self):
+    def open_dashboard(self) -> None:
         self.nav.calling_entry_page_navigator(self)
 
-    def on_save_pdf_clicked(self):
+    def on_save_pdf_clicked(self) -> None:
         path, _ = QFileDialog.getSaveFileName(self, "Save PDF", "results.pdf", "PDF (*.pdf)")
         if path:
             self.export.export_tableview_to_pdf(table=self.UI.tableView, filename=path)
 
-    def on_save_excel_clicked(self):
+    def on_save_excel_clicked(self) -> None:
         self.export.export_tableview_to_excel(self.UI.tableView)

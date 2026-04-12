@@ -36,9 +36,9 @@ class receipt_entry_logic:
         return file_paths
 
 
-    def add_image_logic(self, parent):
+    def add_image_logic(self, parent) -> None:
         #TODO(NGH): Do I need change the value of start_dir to use it on other PC's?
-        new_paths = self.browse_image(parent=parent, title="Add images", start_dir="D:\Work\Imprest_Management\Imprest_Management_Forked")
+        new_paths = self.browse_image(parent=parent, title="Add images", start_dir="./")
         if not new_paths:
             return
 
@@ -57,7 +57,7 @@ class receipt_entry_logic:
 @dataclass
 class LoginResult:
     ok: bool
-    error: str = ""
+    error_message: str = ""
 class main_window_logic:
     def validate_inputs(self, username: str, password: str) -> LoginResult:
         if not username:
@@ -73,10 +73,10 @@ class main_window_logic:
 
 
 class calling_page_logic:
-    def __init__(self):
+    def __init__(self) ->None:
         super().__init__()
 
-    def load_invoices(self):
+    def load_invoices(self) -> None:
         # Your repo functions return (headers, rows), so we ignore headers
         if self.rbInvoiceNo.isChecked():
             rows = Load_Save_Data.get_invoices_by_Invoice_NO(self.leInvoiceNo.text().strip())
@@ -108,7 +108,7 @@ class calling_page_logic:
 
 
 class exporting:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def export_tableview_to_pdf(
@@ -176,7 +176,7 @@ class exporting:
             margin_x = pt_to_px_x(24)
             margin_y = pt_to_px_y(24)
 
-            def page_box():
+            def page_box() -> None:
                 page = printer.pageRect(QPrinter.Unit.DevicePixel)
                 left = int(page.left() + margin_x)
                 top = int(page.top() + margin_y)
@@ -190,7 +190,7 @@ class exporting:
                     s = s.replace("file:///", "")
                 return s
 
-            def _flatten(v):
+            def _flatten(v) -> None:
                 """Accepts: None, str, Path, list/tuple/set, or stringified list/tuple."""
                 if v is None:
                     return []
@@ -217,7 +217,7 @@ class exporting:
                     return p
                 return (base / p) if base else p
 
-            def find_col_by_header(name: str):
+            def find_col_by_header(name: str) -> None:
                 for c in range(model.columnCount()):
                     h = model.headerData(c, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
                     if h is not None and str(h) == name:
@@ -393,7 +393,7 @@ class exporting:
             painter.end()
 
 
-    def export_tableview_to_excel(self, view):
+    def export_tableview_to_excel(self, view) -> None:
         model = view.model()
         header = view.horizontalHeader()
 
