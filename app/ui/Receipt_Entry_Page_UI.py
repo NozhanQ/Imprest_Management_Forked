@@ -1,12 +1,13 @@
-import sys
 from pathlib import Path
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QDateEdit
+from PyQt6.QtCore import QDate
 from PyQt6.uic import loadUi
 from app.data.data_base import Load_Save_Data, DataBase
 from app.controller.logic import receipt_entry_logic
 from app.controller.navigator import Navigator
 from app.data.data_base import UserSession
 import re
+from app.ui.Solar_Date import JalaliCalendarPopup
 
 
 
@@ -31,11 +32,30 @@ class Expense_Receipt_Entry(QWidget):
         self.setWindowTitle("Expense_Receipt_Entry")
         self.selected_image_path: list[str] = []
 
-
         self.UI.btnAdd.clicked.connect(self.add_images)
         self.UI.btnClear.clicked.connect(self.clear_image)
         self.UI.btnCancel.clicked.connect(self.open_dashboard)
         self.UI.btnSave.clicked.connect(self.save_record)
+        self.UI.leDate.mousePressEvent = self.open_jalali_calendar
+
+    def open_jalali_calendar(self, event):
+        popup = JalaliCalendarPopup(self)
+
+        popup.date_selected.connect(self.set_jalali_date)
+
+        popup.exec()
+
+    def set_jalali_date(self, jalali_date):
+
+        # jalali_date is jdatetime.date
+
+        g_date = jalali_date.togregorian()
+
+        self.UI.leDate.setText(
+            f"{jalali_date.year:04d}/"
+            f"{jalali_date.month:02d}/"
+            f"{jalali_date.day:02d}"
+        )
 
     def add_images(self) -> None:
         self.logic.add_image_logic(self)
@@ -59,31 +79,34 @@ class Expense_Receipt_Entry(QWidget):
                             if self.logic.duplicate_check_project(self.UI.le_Project_Code.text().strip()):
                                 if self.UI.leExpense.text() != "":
                                     if re.fullmatch(r"^[0-9]*$", self.UI.leExpense.text()):
-                                        if self.UI.cbExpenseCenter.currentIndex() != -1:
-                                            if self.UI.cbCompany.currentIndex() != -1:
-                                                if self.UI.cbExpenseType.currentIndex() != -1:
-                                                    data = {
-                                                        "Invoice NO": self.UI.leInvoiceNumber.text(),
-                                                        "Project_Code": self.UI.le_Project_Code.text(),
-                                                        "explanation": self.UI.teExplanation.toPlainText(),
-                                                        "amount": self.UI.leExpense.text(),
-                                                        "record_date": self.UI.deDate.date().toString("yyyy-MM-dd"),
-                                                        "image_paths": "|".join(self.logic.selected_image_paths),
-                                                        "expense_center": self.UI.cbExpenseCenter.currentText(),
-                                                        "expense_type": self.UI.cbExpenseType.currentText(),
-                                                        "company_name": self.UI.cbCompany.currentText(),
-                                                        "source_pc": "PC-1",
-                                                        "created_by": DataBase.get_user_full_name(current_user),
-                                                    }
-                                                    full_name = DataBase.get_user_full_name(current_user)
-                                                    Load_Save_Data().save_data(data, full_name)
-                                                    self.open_dashboard()
+                                        if self.UI.leDate.text() != "":
+                                            if self.UI.cbExpenseCenter.currentIndex() != -1:
+                                                if self.UI.cbCompany.currentIndex() != -1:
+                                                    if self.UI.cbExpenseType.currentIndex() != -1:
+                                                        data = {
+                                                            "Invoice NO": self.UI.leInvoiceNumber.text(),
+                                                            "Project_Code": self.UI.le_Project_Code.text(),
+                                                            "explanation": self.UI.teExplanation.toPlainText(),
+                                                            "amount": self.UI.leExpense.text(),
+                                                            "record_date": self.UI.leDate.text(),
+                                                            "image_paths": "|".join(self.logic.selected_image_paths),
+                                                            "expense_center": self.UI.cbExpenseCenter.currentText(),
+                                                            "expense_type": self.UI.cbExpenseType.currentText(),
+                                                            "company_name": self.UI.cbCompany.currentText(),
+                                                            "source_pc": "PC-1",
+                                                            "created_by": DataBase.get_user_full_name(current_user),
+                                                        }
+                                                        full_name = DataBase.get_user_full_name(current_user)
+                                                        Load_Save_Data().save_data(data, full_name)
+                                                        self.open_dashboard()
+                                                    else:
+                                                        self.logic.show_field_error("Expense Type")
                                                 else:
-                                                    self.logic.show_field_error("Expense Type")
+                                                    self.logic.show_field_error("Company")
                                             else:
-                                                self.logic.show_field_error("Company")
+                                                self.logic.show_field_error("Expense Center")
                                         else:
-                                            self.logic.show_field_error("Expense Center")
+                                            self.logic.show_field_error("Date")
                                     else:
                                         self.logic.show_wrong_type_error("Amount")
                                 else:
