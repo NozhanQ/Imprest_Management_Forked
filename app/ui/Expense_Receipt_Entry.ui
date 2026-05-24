@@ -328,85 +328,6 @@ QToolButton#btnBack:pressed {
         <property name="verticalSpacing">
          <number>10</number>
         </property>
-        <item row="4" column="0">
-         <widget class="QDateEdit" name="deDate">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>58</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QDateEdit#deDate::drop-down { border-color: #FF9800; }
-QDateEdit#deDate::drop-down:pressed { background-color: #F57C00; }
-</string>
-          </property>
-          <property name="displayFormat">
-           <string>yyyy/MM/dd</string>
-          </property>
-          <property name="calendarPopup">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLineEdit" name="leInvoiceNumber">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>58</height>
-           </size>
-          </property>
-          <property name="placeholderText">
-           <string>Invoice No</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QTextEdit" name="teExplanation">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="placeholderText">
-           <string>Write a short description (optional)...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLineEdit" name="leExpense">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>58</height>
-           </size>
-          </property>
-          <property name="placeholderText">
-           <string>Amount</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="le_Project_Code">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>58</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>500</height>
-           </size>
-          </property>
-          <property name="placeholderText">
-           <string>Project Code</string>
-          </property>
-         </widget>
-        </item>
         <item row="4" column="1">
          <widget class="QComboBox" name="cbCompany">
           <property name="minimumSize">
@@ -432,6 +353,43 @@ QDateEdit#deDate::drop-down:pressed { background-color: #F57C00; }
           <item>
            <property name="text">
             <string>T</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="cbExpenseType">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>500</height>
+           </size>
+          </property>
+          <property name="maxVisibleItems">
+           <number>6</number>
+          </property>
+          <property name="placeholderText">
+           <string>Expense Type</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C</string>
            </property>
           </item>
          </widget>
@@ -473,8 +431,21 @@ QDateEdit#deDate::drop-down:pressed { background-color: #F57C00; }
           </item>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QComboBox" name="cbExpenseType">
+        <item row="5" column="0">
+         <widget class="QTextEdit" name="teExplanation">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Write a short description (optional)...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="le_Project_Code">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -487,27 +458,48 @@ QDateEdit#deDate::drop-down:pressed { background-color: #F57C00; }
             <height>500</height>
            </size>
           </property>
-          <property name="maxVisibleItems">
-           <number>6</number>
+          <property name="placeholderText">
+           <string>Project Code</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="leInvoiceNumber">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
           </property>
           <property name="placeholderText">
-           <string>Expense Type</string>
+           <string>Invoice No</string>
           </property>
-          <item>
-           <property name="text">
-            <string>A</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>B</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>C</string>
-           </property>
-          </item>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLineEdit" name="leExpense">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Amount</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLineEdit" name="leDate">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Date</string>
+          </property>
          </widget>
         </item>
        </layout>

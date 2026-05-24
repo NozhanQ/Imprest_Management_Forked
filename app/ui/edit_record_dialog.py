@@ -18,9 +18,7 @@ class EditRecordDialog(QDialog):
         self.project_code_edit = QLineEdit(str(record_data["Project_Code"]))
         self.explanation_edit = QLineEdit(record_data["explanation"])
         self.amount_edit = QLineEdit(str(record_data["amount"]))
-        self.date_edit = QDateEdit()
-        self.date_edit.setDisplayFormat("yyyy-MM-dd")
-        self.date_edit.setDate(QDate.fromString(record_data["record_date"], "yyyy-MM-dd"))
+        self.date_edit = QLineEdit(str(record_data["record_date"]))
         self.expense_center_edit = QLineEdit(str(record_data["expense_center"]))
         self.expense_type_edit = QLineEdit(str(record_data["expense_type"]))
         self.company_edit = QLineEdit(str(record_data["company_name"]))
@@ -48,7 +46,7 @@ class EditRecordDialog(QDialog):
             "Project_Code": self.project_code_edit.text(),
             "explanation": self.explanation_edit.text(),
             "amount": float(self.amount_edit.text()),
-            "record_date": self.date_edit.date().toString("yyyy-MM-dd"),
+            "record_date": self.date_edit.text(),
             "expense_center": self.expense_center_edit.text(),
             "expense_type": self.expense_type_edit.text(),
             "company_name": self.company_edit.text()
