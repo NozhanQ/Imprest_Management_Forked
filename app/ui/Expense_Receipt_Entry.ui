@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Receipt_Entry</class>
+ <widget class="QWidget" name="Receipt_Entry">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>722</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1000</width>
+    <height>722</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Receipt Entry</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+/* =========================
+   BASE
+   ========================= */
+QWidget {
+    background-color: #121212;
+    color: #EAEAEA;
+    font-family: &quot;Segoe UI&quot;;
+    font-size: 13px;
+}
+/* =========================
+   HEADER
+   ========================= */
+QFrame#headerBar {
+    background-color: #171717;
+    border-bottom: 1px solid rgba(255,255,255,10);
+}
+QLabel {
+    background-color: #171717;
+}
+
+QLabel#lblTitle {
+    color: #FF9800;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+QLabel#lblSubtitle {
+    color: rgba(255,255,255,150);
+    font-size: 12px;
+}
+
+/* =========================
+   CARD
+   ========================= */
+QFrame#contentCard {
+    background-color: #171717;
+    border: 1px solid rgba(255,255,255,10);
+    border-radius: 18px;
+}
+
+/* Divider */
+QFrame#divider {
+    background-color: rgba(255,255,255,10);
+}
+
+/* =========================
+   LABELS
+   ========================= */
+QLabel.formLabel {
+    color: rgba(255,255,255,200);
+    font-weight: 600;
+}
+
+/* =========================
+   INPUTS (consistent)
+   ========================= */
+QLineEdit, QComboBox, QDateEdit, QTextEdit {
+    background-color: transparent;
+    color: #FFFFFF;
+    border: 1.5px solid #FF9800;
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+QLineEdit, QComboBox, QDateEdit {
+    min-height: 38px;
+}
+
+QTextEdit {
+    padding: 10px;
+}
+
+QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QTextEdit:focus {
+    border: 2px solid #FFA726;
+}
+
+/* Combo dropdown */
+QComboBox::drop-down {
+    border: none;
+    width: 28px;
+}
+QComboBox::down-arrow {
+    width: 10px;
+    height: 10px;
+}
+
+/* DateEdit arrow/popup */
+QDateEdit::drop-down {
+    border: none;
+    width: 28px;
+}
+
+/* =========================
+   ATTACHMENT PREVIEW
+   ========================= */
+QLabel#lblSelectPicture {
+    border: 1px dashed rgba(255,152,0,120);
+    border-radius: 14px;
+    color: rgba(255,255,255,170);
+    background-color: rgba(255,255,255,4);
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+QPushButton {
+    background-color: transparent;
+    color: #FF9800;
+    font-weight: bold;
+    border: 2px solid #FF9800;
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-height: 40px;
+}
+
+QPushButton:hover {
+    background-color: rgba(255, 152, 0, 25);
+}
+
+QPushButton:pressed {
+    background-color: rgba(255, 152, 0, 60);
+    color: black;
+}
+
+/* Primary action button */
+QPushButton#btnSave {
+    background-color: #FF9800;
+    color: #111111;
+    border: none;
+    font-weight: 800;
+}
+
+QPushButton#btnSave:hover {
+    background-color: #FFA726;
+}
+
+QPushButton#btnSave:pressed {
+    background-color: #F57C00;
+}
+
+/* Secondary button (optional) */
+QPushButton#btnCancel {
+    border-color: rgba(255,255,255,22);
+    color: rgba(255,255,255,200);
+}
+QPushButton#btnCancel:hover {
+    background-color: rgba(255,255,255,6);
+}
+
+/* Disabled */
+QPushButton:disabled {
+    border-color: #555;
+    color: #555;
+}
+
+/* =========================
+   BACK BUTTON (creative)
+   ========================= */
+QToolButton#btnBack {
+    background-color: rgba(255, 152, 0, 10);
+    color: #FF9800;
+    border: 1.5px solid rgba(255, 152, 0, 140);
+    border-radius: 22px;              /* circular (44px button) */
+    font-size: 18px;
+    font-weight: 900;
+}
+
+QToolButton#btnBack:hover {
+    background-color: rgba(255, 152, 0, 22);
+    border: 2px solid #FFA726;
+}
+
+QToolButton#btnBack:pressed {
+    background-color: rgba(255, 152, 0, 55);
+    color: #111111;
+}
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing">
+    <number>16</number>
+   </property>
+   <property name="leftMargin">
+    <number>18</number>
+   </property>
+   <property name="topMargin">
+    <number>18</number>
+   </property>
+   <property name="rightMargin">
+    <number>18</number>
+   </property>
+   <property name="bottomMargin">
+    <number>18</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="headerBar">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>84</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>18</number>
+      </property>
+      <property name="topMargin">
+       <number>14</number>
+      </property>
+      <property name="rightMargin">
+       <number>18</number>
+      </property>
+      <property name="bottomMargin">
+       <number>14</number>
+      </property>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="headerTopRow">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblTitle">
+          <property name="text">
+           <string>Receipt Entry</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lblSubtitle">
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+    background-color: #171717;   /* orange */
+}
+</string>
+        </property>
+        <property name="text">
+         <string>Fill in the receipt details and attach the invoice image (optional).</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="contentCard">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <layout class="QVBoxLayout" name="cardLayout">
+      <property name="spacing">
+       <number>14</number>
+      </property>
+      <property name="leftMargin">
+       <number>18</number>
+      </property>
+      <property name="topMargin">
+       <number>18</number>
+      </property>
+      <property name="rightMargin">
+       <number>18</number>
+      </property>
+      <property name="bottomMargin">
+       <number>18</number>
+      </property>
+      <item>
+       <layout class="QGridLayout" name="formGrid">
+        <property name="horizontalSpacing">
+         <number>14</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>10</number>
+        </property>
+        <item row="3" column="0">
+         <widget class="QLineEdit" name="leExpense">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>630</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Amount</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="cbCompany">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>500</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Company</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>S</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>T</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="leInvoiceNumber">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>630</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Invoice No</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QTextEdit" name="teExplanation">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>630</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Write a short description (optional)...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLineEdit" name="leDate">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>630</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Date</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="cbExpenseCenter">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>500</height>
+           </size>
+          </property>
+          <property name="maxVisibleItems">
+           <number>6</number>
+          </property>
+          <property name="placeholderText">
+           <string>Expense Center</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QComboBox" name="cbExpenseType">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>500</height>
+           </size>
+          </property>
+          <property name="maxVisibleItems">
+           <number>6</number>
+          </property>
+          <property name="placeholderText">
+           <string>Expense Type</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="cbProjectCode">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>58</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>319</width>
+            <height>500</height>
+           </size>
+          </property>
+          <property name="maxVisibleItems">
+           <number>6</number>
+          </property>
+          <property name="placeholderText">
+           <string>Project Code</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>A</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>B</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QFrame" name="divider">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>1</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>1</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="attachRow">
+        <property name="spacing">
+         <number>14</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblSelectPicture">
+          <property name="minimumSize">
+           <size>
+            <width>340</width>
+            <height>170</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>No invoice image selected</string>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="attachBtns">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnAdd">
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>64</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="text">
+             <string>Add image</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnClear">
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>64</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="text">
+             <string>Clear</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spAttach">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="footerRow">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item>
+      <spacer name="spFooterLeft">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCancel">
+       <property name="minimumSize">
+        <size>
+         <width>180</width>
+         <height>64</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSave">
+       <property name="minimumSize">
+        <size>
+         <width>180</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Save Receipt</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
