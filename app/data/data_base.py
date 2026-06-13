@@ -285,49 +285,21 @@ class DataBase:
     @classmethod
     def create_tables(cls) -> None:
         query = """
-                CREATE TABLE IF NOT EXISTS records \
-                ( \
-                    id \
-                    TEXT \
-                    PRIMARY \
-                    KEY, \
-                    Invoice_NO \
-                    TEXT \
-                    NOT \
-                    NULL, \
-                    Project_Code \
-                    TEXT \
-                    NOT \
-                    NULL, \
-                    explanation \
-                    TEXT, \
-                    amount \
-                    REAL, \
-                    record_date \
-                    TEXT, \
-                    image_path \
-                    TEXT, \
-                    last_modified \
-                    TEXT \
-                    NOT \
-                    NULL, \
-                    source_pc \
-                    TEXT \
-                    NOT \
-                    NULL, \
-                    deleted \
-                    INTEGER \
-                    DEFAULT \
-                    0, \
-                    expense_center \
-                    TEXT, \
-                    expense_type \
-                    TEXT, \
-                    company_name \
-                    TEXT, \
-                    created_by \
-                    TEXT
-                )
+                CREATE TABLE IF NOT EXISTS records (
+                    id TEXT PRIMARY KEY,
+                    Invoice_NO TEXT NOT NULL,
+                    Project_Code NOT NULL,
+                    explanation TEXT, 
+                    amount REAL,
+                    record_date TEXT,
+                    image_path TEXT,
+                    last_modified TEXT NOT NULL,
+                    source_pc TEXT NOT NULL, 
+                    deleted INTEGER DEFAULT 0,
+                    expense_center TEXT,
+                    expense_type TEXT,
+                    company_name TEXT,
+                    created_by TEXT)
                 """
         conn = cls.get_connection()
         cur = conn.cursor()
@@ -339,38 +311,14 @@ class DataBase:
         conn.commit()
 
         cur.execute(
-            '''CREATE TABLE IF NOT EXISTS users
-            (
-                id
-                INTEGER
-                PRIMARY
-                KEY
-                AUTOINCREMENT,
-                username
-                TEXT
-                UNIQUE
-                NOT
-                NULL,
-                hashed_password
-                TEXT
-                NOT
-                NULL,
-                role
-                TEXT
-                NOT
-                NULL
-                CHECK (
-                role
-                IN
-               (
-                'admin',
-                'user'
-               )),
+            '''CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                hashed_password TEXT NOT NULL,
+                role TEXT NOT NULL CHECK (role IN('admin','user')),
                 full_name TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            '''
-        )
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+            ''')
         conn.commit()
         conn.close()
 
