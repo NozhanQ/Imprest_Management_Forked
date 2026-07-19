@@ -1,44 +1,30 @@
 from __future__ import annotations
+
+import traceback
+
 from openpyxl.utils import get_column_letter
-import os
 from dataclasses import dataclass
 import shutil
 from app.data.data_base import Load_Save_Data,UserSession
-from PyQt6.QtGui import QStandardItem, QImage
-from PyQt6.QtWidgets import (
-    QFileDialog, QRadioButton, QDateEdit, QLineEdit, QTableView
-)
+from PyQt6.QtGui import QStandardItem, QImage, QAction, QIcon, QPainter, QPageLayout, QPageSize
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 from typing import Optional, Union
 from pathlib import Path
 from PyQt6.QtWidgets import (
-    QWidget, QMessageBox, QComboBox, QInputDialog, QMenu
+    QWidget, QMessageBox, QComboBox, QInputDialog, QMenu, QApplication, QTableView, QFileDialog, QRadioButton, QLineEdit
 )
-from PyQt6.QtCore import QSettings, Qt
-from PyQt6.QtGui import QAction, QIcon
 from app.ui.edit_record_dialog import EditRecordDialog
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (
-    QApplication,
-    QTableView
-)
-
+from PyQt6.QtCore import Qt, QSortFilterProxyModel, QSettings, QMarginsF, QEventLoop
 from PyQt6.QtPrintSupport import QPrinter
+import sys
+import os
 
-from PyQt6.QtGui import (
-    QPainter,
-    QPageLayout,
-    QPageSize
-)
 
-from PyQt6.QtCore import (
-    QMarginsF,
-    QEventLoop
-)
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
+if getattr(sys, 'frozen', False):
+    BASE_DIR = Path(sys.executable).parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 PathLike = Union[str, Path]
 
@@ -267,18 +253,9 @@ class calling_page_logic:
         else:  # rbExplanation
             rows = Load_Save_Data.get_invoices_by_explanation(lee.text().strip())
 
-        # Clear + keep the static first row
         self.model.clear()
         self.model.setColumnCount(len(self.headers))
-        self.model.setHorizontalHeaderLabels([""] * len(self.headers))
-
-        # Header row (first row in the model)
-        header_items = []
-        for h in self.headers:
-            item = QStandardItem(h)
-            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            header_items.append(item)
-        self.model.appendRow(header_items)
+        self.model.setHorizontalHeaderLabels(self.headers)  # real header, real labels
 
         # Data rows
         for row in rows:
@@ -292,9 +269,10 @@ class calling_page_logic:
                 items.append(item)
             self.model.appendRow(items)
 
-        # Hide id column (column 0)
         self.tableView.setColumnHidden(0, True)
-
+        # Default sort by record_date
+        date_col_index = self.headers.index("record_date")
+        self.tableView.sortByColumn(date_col_index, Qt.SortOrder.AscendingOrder)
 
     def edit_record(self, table: QTableView) -> None:
         rows = table.selectionModel().selectedRows()
@@ -323,12 +301,7 @@ class calling_page_logic:
         if dialog.exec():
             updated = dialog.get_updated_data()
 
-            target_path = Path(__file__).parent.parent.parent / "image_records" / str(record_id)
-
-            if target_path.exists() and target_path.is_dir():
-                shutil.rmtree(target_path)
-                QMessageBox.information(None, "Edited", "Record has been edited.")
-
+            QMessageBox.information(None, "Edited", "Record has been edited.")
             Load_Save_Data.update_record(record_id, updated)
 
     def delete_record(self, table: QTableView) -> None:
@@ -361,7 +334,16 @@ class calling_page_logic:
             Load_Save_Data.soft_delete_record(record_id)
             QMessageBox.information(None, "Deleted", "Record has been deleted.")
 
+    def filtering(self, table: QTableView, text: str) -> None:
+        if not hasattr(self, 'proxy'):
+            self.proxy = QSortFilterProxyModel()
+            self.proxy.setSourceModel(table.model())
+            self.proxy.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+            self.proxy.setFilterKeyColumn(8)
+            self.proxy.filterAcceptsRow = lambda row, parent: True if row == 0 else QSortFilterProxyModel.filterAcceptsRow(self.proxy, row, parent)
+            table.setModel(self.proxy)
 
+        self.proxy.setFilterFixedString(text)
 
 
 class exporting:
@@ -369,185 +351,170 @@ class exporting:
         super().__init__()
 
     def export_table_to_pdf(self, table, file_path):
-        # Create hidden export view
+        if getattr(sys, 'frozen', False):
+            base = Path(sys.executable).parent
+        else:
+            base = Path(__file__).resolve().parent.parent.parent
+
         export_view = QTableView()
-        model = table.model()
-
-        # Reuse SAME model
         export_view.setModel(table.model())
-
-        # Copy appearance
         export_view.setFont(table.font())
         export_view.setStyleSheet(table.styleSheet())
 
-        # copy column widths
         for col in range(table.model().columnCount()):
-            export_view.setColumnWidth(
-                col,
-                table.columnWidth(col)
-            )
+            export_view.setColumnWidth(col, table.columnWidth(col))
 
-        # Printer
-        printer = QPrinter(QPrinter.PrinterMode.HighResolution)
-
+        printer = QPrinter(QPrinter.PrinterMode.ScreenResolution)
         printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat)
-
         printer.setOutputFileName(file_path)
-
-        printer.setPageSize(
-            QPageSize(QPageSize.PageSizeId.A4)
-        )
-
-        printer.setPageOrientation(
-            QPageLayout.Orientation.Landscape
-        )
-
-        printer.setPageMargins(
-            QMarginsF(10, 10, 10, 10)
-        )
-
-        #
-        # Painter
-        #
+        printer.setPageSize(QPageSize(QPageSize.PageSizeId.A4))
+        printer.setPageOrientation(QPageLayout.Orientation.Landscape)
+        printer.setPageMargins(QMarginsF(10, 10, 10, 10))
 
         painter = QPainter()
-
         if not painter.begin(printer):
-            raise RuntimeError("Could not create printer")
+            raise RuntimeError("Could not begin painter")
 
-        # Resize export view
-        export_view.resizeColumnsToContents()
-        export_view.resizeRowsToContents()
-
-        export_view.setFixedHeight(
-            export_view.horizontalHeader().height()
-            + export_view.verticalHeader().length()
-            + 4
+        page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
+        page_count = 1
+        painter.drawText(
+            int(page_rect.width() - 5),  # x: from left
+            int(page_rect.height() - 1),  # y: from top
+            str(page_count)
         )
 
-        export_view.setFixedWidth(
-            export_view.verticalHeader().width()
-            + export_view.horizontalHeader().length()
-            + 4
-        )
-
-        QApplication.processEvents(
-            QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
-        )
-
-        export_view.setColumnHidden(0, True)
-
-        # PAGE 1 → FULL TABLE
-        painter.save()
-
-        scale = 13
-
-        painter.scale(scale, scale)
-
-        export_view.render(painter)
-
-        painter.restore()
-
-        printer.newPage()
-
-        # NEXT PAGES → ONE ROW EACH
-        row_count = table.model().rowCount()
-
-        for row in range(1, row_count):
-
-            # Hide all rows
-            export_view.setUpdatesEnabled(False)
-
-            for r in range(row_count):
-                export_view.setRowHidden(r, True)
-
-            # Show rows needed
-            export_view.setRowHidden(0, False)
-            export_view.setColumnHidden(0, True)
-            export_view.setRowHidden(row, False)
-
-            export_view.setUpdatesEnabled(True)
-
-            # Tight resize
+        try:
+            export_view.resizeColumnsToContents()
+            export_view.setColumnHidden(9, True)
+            export_view.resizeRowsToContents()
             export_view.setFixedHeight(
                 export_view.horizontalHeader().height()
-                + export_view.rowHeight(0)
-                + export_view.rowHeight(row)
-                + 10
+                + export_view.verticalHeader().length() + 4
             )
-
-            # Process events
-            QApplication.processEvents(
-                QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
+            export_view.setFixedWidth(
+                export_view.verticalHeader().width()
+                + export_view.horizontalHeader().length() + 4
             )
+            QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            export_view.setColumnHidden(0, True)
 
-            # image
-            index = model.index(row, 0)
-
-            id = str(model.data(index)).strip()
-            images_path = BASE_DIR / "image_records" / id
-
-            image_files=[]
-            for file in os.listdir(images_path):
-                if file.lower().endswith((
-                        ".png",
-                        ".jpg",
-                        ".jpeg",
-                        ".bmp",
-                        ".webp"
-                )):
-                    image_files.append(file)
-
-            # render table
+            scale = 1.38
             painter.save()
-
             painter.scale(scale, scale)
-
             export_view.render(painter)
-
             painter.restore()
 
-            # Start images BELOW scaled table
-            table_height = export_view.height() * scale
 
-            x = 500
-            y = table_height
+            printer.newPage()
 
-            page_rect = printer.pageRect(
-                QPrinter.Unit.DevicePixel
-            )
+            row_count = table.model().rowCount()
+            model = table.model()
 
-            page_height = page_rect.height()
+            # --- Picture container settings ---
+            # Images are shown 2 per page, side by side. Each image is scaled to
+            # fit INSIDE a fixed container (both width and height capped) and
+            # centered within it, so unusual aspect ratios never overflow the
+            # page or bleed into the other image's space.
+            IMAGES_PER_PAGE = 2
+            MARGIN = 20
+            IMG_SPACING = 15
 
-            for file in image_files:
-                full_path = images_path / file
+            page_w = int(page_rect.width())
+            page_rect_h = int(page_rect.height())
 
-                image = QImage(str(full_path))
+            # Container width: two containers + one spacing gap must fit between margins
+            CONTAINER_W = (page_w - 2 * MARGIN - IMG_SPACING) // IMAGES_PER_PAGE
 
-                scaled = image.scaled(
-                    7000,
-                    7000,
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
+            for row in range(row_count):
+                export_view.setUpdatesEnabled(False)
+                for r in range(row_count):
+                    export_view.setRowHidden(r, True)
+                export_view.setColumnHidden(0, True)
+                export_view.setColumnHidden(9, True)
+                export_view.setRowHidden(row, False)
+                export_view.setUpdatesEnabled(True)
+
+                export_view.setFixedHeight(
+                    export_view.horizontalHeader().height()
+                    + export_view.rowHeight(0)
+                    + export_view.rowHeight(row) + 10
                 )
+                QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
-                if y + scaled.height() > page_height:
+                row_id = str(model.data(model.index(row, 0))).strip()
+                images_path = base / "image_records" / row_id
+
+                image_files = []
+                if images_path.exists() and images_path.is_dir():
+                    image_files = [
+                        f for f in os.listdir(images_path)
+                        if f.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".webp"))
+                    ]
+
+                # Start every row on its own fresh page (except the very first row,
+                # which uses the page already started before the loop).
+                if row > 0:
                     printer.newPage()
+                    page_count += 1
+                    painter.drawText(
+                        int(page_rect.width() - 5),
+                        int(page_rect.height() - 10),
+                        str(page_count)
+                    )
 
-                    y = 500
+                painter.save()
+                painter.scale(scale, scale)
+                export_view.render(painter)  # draw this row's mini-table
+                painter.restore()
 
-                painter.drawImage(x, y, scaled)
+                table_height = export_view.height() * scale
+                top_y = int(table_height) + MARGIN
 
-                y += scaled.height() + 40
+                # Container height: fill remaining vertical space below the table
+                CONTAINER_H = page_rect_h - top_y - MARGIN
 
-            # Next page
-            if row < row_count - 1:
-                printer.newPage()
+                slot_in_page = 0  # 0 or 1 -> left or right slot on the current page
+                y = top_y
 
-        # Finish
-        painter.end()
+                for i, file in enumerate(image_files):
+                    # every 2 images (IMAGES_PER_PAGE), force a new page
+                    if slot_in_page == IMAGES_PER_PAGE:
+                        printer.newPage()
+                        page_count += 1
+                        painter.drawText(
+                            int(page_rect.width() - 5),
+                            int(page_rect.height() - 10),
+                            str(page_count)
+                        )
+                        painter.save()
+                        painter.scale(scale, scale)
+                        export_view.render(painter)  # re-draw row header on new page
+                        painter.restore()
 
-        export_view.deleteLater()
+                        top_y = int(table_height) + MARGIN
+                        y = top_y
+                        slot_in_page = 0
+
+                    x = MARGIN + slot_in_page * (CONTAINER_W + IMG_SPACING)
+
+                    image = QImage(str(images_path / file))
+                    if image.isNull():
+                        continue
+
+                    # scale to fit INSIDE the fixed container, then center it
+                    scaled = image.scaled(
+                        CONTAINER_W, CONTAINER_H,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+                    offset_x = (CONTAINER_W - scaled.width()) // 2
+                    offset_y = (CONTAINER_H - scaled.height()) // 2
+
+                    painter.drawImage(x + offset_x, y + offset_y, scaled)
+                    slot_in_page += 1
+        finally:
+            painter.end()
+            export_view.deleteLater()
 
     def export_tableview_to_excel(self, view) -> None:
         model = view.model()
@@ -582,72 +549,38 @@ class exporting:
         # HEADER ROW (ROW 1)
         # ==================================================
 
-        # Numbering column header
         cell = ws.cell(row=1, column=1, value="No.")
         cell.font = header_font
         cell.alignment = header_align
 
-        # Table headers
         for excel_col, logical_col in enumerate(export_col, start=2):
             title = model.headerData(
                 logical_col,
                 Qt.Orientation.Horizontal,
                 Qt.ItemDataRole.DisplayRole
             )
-
             text = "" if title is None else str(title)
-
-            cell = ws.cell(
-                row=1,
-                column=excel_col,
-                value=text
-            )
+            cell = ws.cell(row=1, column=excel_col, value=text)
             cell.font = header_font
             cell.alignment = header_align
 
         ws.freeze_panes = "A2"
 
         # ==================================================
-        # DATA ROWS (START FROM ROW 2)
+        # DATA ROWS (STARTING ROW 2)
         # ==================================================
 
-        rows = model.rowCount()
+        row_count = model.rowCount()
 
-        for r in range(rows):
-            excel_row = r + 1
+        for row_idx, source_row in enumerate(range(row_count), start=2):
+            # "No." column
+            ws.cell(row=row_idx, column=1, value=row_idx - 1)
 
-            # Row number
-            ws.cell(
-                row=excel_row + 1,
-                column=1,
-                value=r + 1
-            )
-
-            # Data columns
+            # Real data columns
             for excel_col, logical_col in enumerate(export_col, start=2):
-                idx = model.index(r, logical_col)
-
-                value = model.data(
-                    idx,
-                    Qt.ItemDataRole.DisplayRole
-                )
-
-                if value is None:
-                    state = model.data(
-                        idx,
-                        Qt.CheckStateRole
-                    )
-
-                    if state is not None:
-                        value = "✓" if state == Qt.Checked else "✗"
-                    else:
-                        value = ""
-
-                ws.cell(
-                    row=excel_row,
-                    column=excel_col,
-                    value=str(value)
-                )
+                index = model.index(source_row, logical_col)
+                value = model.data(index, Qt.ItemDataRole.DisplayRole)
+                ws.cell(row=row_idx, column=excel_col, value=value)
 
         # ==================================================
         # AUTO WIDTH
