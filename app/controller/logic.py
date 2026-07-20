@@ -232,39 +232,45 @@ class calling_page_logic:
         super().__init__()
 
     def load_invoices(self,
-                      rbi : QRadioButton, lei : QLineEdit,
-                      rbp : QRadioButton, lep: QLineEdit,
-                      rbt : QRadioButton, lesd : QLineEdit, leed : QLineEdit,
-                      rbrd : QRadioButton, lerd : QLineEdit,
-                      lee : QLineEdit) -> None:
+                      radio_button_invoiceNO : QRadioButton, line_edit_invoiceNO : QLineEdit,
+                      radio_button_project_code : QRadioButton, line_edit_project_code: QLineEdit,
+                      radio_button_timerange : QRadioButton, line_edit_start_date : QLineEdit, line_edit_end_date : QLineEdit,
+                      radio_button_regestration_date : QRadioButton, line_edit_regestration_date : QLineEdit,
+                      line_edit_explanation : QLineEdit) -> None:
         # Your repo functions return (headers, rows), so we ignore headers
-        if rbi.isChecked():
-            rows = Load_Save_Data.get_invoices_by_Invoice_NO(lei.text().strip())
+        if radio_button_invoiceNO.isChecked():
+            rows = Load_Save_Data.get_invoices_by_Invoice_NO(line_edit_invoiceNO.text().strip())
 
-        elif rbp.isChecked():
-            rows = Load_Save_Data.get_invoices_by_Project_Code(lep.text().strip())
+        elif radio_button_project_code.isChecked():
+            rows = Load_Save_Data.get_invoices_by_Project_Code(line_edit_project_code.text().strip())
 
-        elif rbt.isChecked():
-            rows = Load_Save_Data.get_invoices_by_time_range(lesd.text().strip(), leed.text().strip())
+        elif radio_button_timerange.isChecked():
+            rows = Load_Save_Data.get_invoices_by_time_range(line_edit_start_date.text().strip(), line_edit_end_date.text().strip())
 
-        elif rbrd.isChecked():
-            rows = Load_Save_Data.get_invoices_by_regestrationdate(lerd.text().strip())
+        elif radio_button_regestration_date.isChecked():
+            rows = Load_Save_Data.get_invoices_by_regestrationdate(line_edit_regestration_date.text().strip())
 
         else:  # rbExplanation
-            rows = Load_Save_Data.get_invoices_by_explanation(lee.text().strip())
+            rows = Load_Save_Data.get_invoices_by_explanation(line_edit_explanation.text().strip())
 
         self.model.clear()
         self.model.setColumnCount(len(self.headers))
         self.model.setHorizontalHeaderLabels(self.headers)  # real header, real labels
 
         # Data rows
+        INVOICE_NO_COLUMN = 1  # matches self.headers index for "Invoice NO"
+
         for row in rows:
             items = []
-            for v in row:
+            for col_index, v in enumerate(row):
                 if isinstance(v, float):
                     item = QStandardItem(f"{int(v):,}")
                 else:
                     item = QStandardItem("" if v is None else str(v))
+
+                if col_index == INVOICE_NO_COLUMN and v is not None:
+                    item.setData(int(v), Qt.ItemDataRole.EditRole)
+
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 items.append(item)
             self.model.appendRow(items)

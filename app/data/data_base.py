@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 import sys
 import shutil
+import jdatetime
 
 # ==================== PATH ====================
 if getattr(sys, 'frozen', False):
@@ -76,38 +77,38 @@ class Load_Save_Data:
     @classmethod
     def get_invoices_by_Invoice_NO(cls, Invoice_NO) -> list[tuple]:
         query = """
-                SELECT Id, \
-                       Invoice_NO, \
-                       Project_Code, \
-                       explanation, \
-                       record_date, \
-                       amount, \
-                       expense_center, \
-                       expense_type, \
-                       company_name, \
+                SELECT Id,
+                       Invoice_NO,
+                       Project_Code,
+                       explanation,
+                       record_date,
+                       amount,
+                       expense_center,
+                       expense_type,
+                       company_name,
                        created_by
                 FROM records
                 WHERE Invoice_NO LIKE ?
-                  AND deleted = 0 \
+                  AND deleted = 0
                 """
         return cls.fetch_all(query, (Invoice_NO,))
 
     @classmethod
     def get_invoices_by_Project_Code(cls, Project_Code) -> list[tuple]:
         query = """
-                SELECT Id, \
-                       Invoice_NO, \
-                       Project_Code, \
-                       explanation, \
-                       record_date, \
-                       amount, \
-                       expense_center, \
-                       expense_type, \
-                       company_name, \
+                SELECT Id,
+                       Invoice_NO,
+                       Project_Code,
+                       explanation,
+                       record_date,
+                       amount,
+                       expense_center,
+                       expense_type,
+                       company_name,
                        created_by
                 FROM records
                 WHERE Project_Code LIKE ?
-                  AND deleted = 0 \
+                  AND deleted = 0
                 """
         return cls.fetch_all(query, (Project_Code,))
 
@@ -133,39 +134,39 @@ class Load_Save_Data:
     @classmethod
     def get_invoices_by_regestrationdate(cls, regestrationdate) -> list[tuple]:
         query = """
-                SELECT Id, \
-                       Invoice_NO, \
-                       Project_Code, \
-                       explanation, \
-                       record_date, \
-                       amount, \
-                       expense_center, \
-                       expense_type, \
-                       company_name, \
+                SELECT Id,
+                       Invoice_NO,
+                       Project_Code,
+                       explanation,
+                       record_date,
+                       amount,
+                       expense_center,
+                       expense_type,
+                       company_name,
                        created_by
                 FROM records
-                WHERE record_date = ?
-                  AND deleted = 0 \
+                WHERE last_modified = ?
+                AND deleted = 0
                 """
         return cls.fetch_all(query, (regestrationdate,))
 
     @classmethod
     def get_invoices_by_time_range(cls, startdate, enddate) -> list[tuple]:
         query = """
-                SELECT Id, \
-                       Invoice_NO, \
-                       Project_Code, \
-                       explanation, \
-                       record_date, \
-                       amount, \
-                       expense_center, \
-                       expense_type, \
-                       company_name, \
+                SELECT Id,
+                       Invoice_NO,
+                       Project_Code,
+                       explanation,
+                       record_date,
+                       amount,
+                       expense_center,
+                       expense_type,
+                       company_name,
                        created_by
                 FROM records
-                WHERE record_date >= ? \
-                  AND record_date <= ?
-                  AND deleted = 0 \
+                WHERE record_date >= ?
+                AND record_date <= ?
+                AND deleted = 0
                 """
         conn = cls.get_connection()
         cur = conn.cursor()
@@ -284,7 +285,7 @@ class DataBase:
         query = """
                 CREATE TABLE IF NOT EXISTS records (
                     id TEXT PRIMARY KEY,
-                    Invoice_NO TEXT NOT NULL,
+                    Invoice_NO INTEGER NOT NULL,
                     Project_Code NOT NULL,
                     explanation TEXT, 
                     amount REAL,
@@ -388,7 +389,7 @@ class DataBase:
         conn = cls.get_connection()
         cur = conn.cursor()
         record_id = str(uuid.uuid4())
-        now = datetime.utcnow().isoformat()
+        now = jdatetime.datetime.now().strftime('%Y/%m/%d')
         cur.execute("""
                     INSERT INTO records (id, Invoice_NO, Project_Code, explanation, amount, record_date, image_path,
                                          last_modified, source_pc, expense_center, expense_type, company_name,

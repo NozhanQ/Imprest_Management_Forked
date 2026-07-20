@@ -224,5 +224,6 @@ bool
 *.jpg
 *.jpeg
 *.png
+*.pdf
 
 app/controller/license.py
