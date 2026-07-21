@@ -1,5 +1,5 @@
 from pathlib import Path
-from PyQt6.QtWidgets import QWidget, QDateEdit
+from PyQt6.QtWidgets import QWidget, QDateEdit, QMessageBox
 from PyQt6.QtCore import QDate
 from PyQt6.uic import loadUi
 from app.data.data_base import Load_Save_Data, DataBase
@@ -9,6 +9,7 @@ from app.data.data_base import UserSession
 import re
 from app.ui.Solar_Date import JalaliCalendarPopup, JalaliDateEdit
 import sys
+from PyQt6.QtWidgets import QLineEdit, QTextEdit, QComboBox, QCheckBox, QSpinBox, QDoubleSpinBox
 
 
 class Expense_Receipt_Entry(QWidget):
@@ -103,7 +104,9 @@ class Expense_Receipt_Entry(QWidget):
                                                 }
                                                 full_name = DataBase.get_user_full_name(current_user)
                                                 Load_Save_Data().save_data(data, full_name)
-                                                self.open_dashboard()
+                                                QMessageBox.information(None,"Success", "✓ Record saved successfully")
+                                                self.clear_form()
+
                                             else:
                                                 self.logic.show_field_error("Expense Type")
                                         else:
@@ -124,3 +127,21 @@ class Expense_Receipt_Entry(QWidget):
                 self.logic.show_wrong_type_error("Invoice No")
         else:
             self.logic.show_field_error("Invoice No")
+
+
+    def clear_form(self):
+        # QLineEdit
+        self.UI.leExpense.clear()
+        self.UI.leInvoiceNumber.clear()
+
+        # QTextEdit / QPlainTextEdit
+        self.UI.teExplanation.clear()
+
+        # QComboBox
+        self.UI.cbProjectCode.setCurrentIndex(-1)
+        self.UI.cbExpenseType.setCurrentIndex(-1)
+        self.UI.cbExpenseCenter.setCurrentIndex(-1)
+        self.UI.cbCompany.setCurrentIndex(-1)
+
+        # Image label
+        self.clear_image()

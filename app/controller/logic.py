@@ -81,7 +81,7 @@ class receipt_entry_logic:
                         QMessageBox.information(combo, "Duplicate", f'"{new_item}" already exists.')
                 # Reset selection to first normal item
                 if combo.count() > 1:
-                    combo.setCurrentIndex(0)
+                    combo.setCurrentIndex(combo.count() - 2)
                 combo._block_selection = False
 
         def remove_item_at_row(row) -> None:
@@ -100,6 +100,7 @@ class receipt_entry_logic:
                 combo.removeItem(row)
                 save_items()
                 combo._block_selection = False
+                combo.setCurrentIndex(-1)
 
         def on_view_context_menu(point) -> None:
             """Called when right‑clicking inside the dropdown list."""
