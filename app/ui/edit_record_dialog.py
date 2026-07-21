@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QFileDialog, QDialogButtonBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QDialogButtonBox
 from PyQt6.QtWidgets import QPushButton
+from app.controller.logic import receipt_entry_logic
 
 class EditRecordDialog(QDialog):
     def __init__(self, record_data, parent=None):
@@ -7,6 +8,8 @@ class EditRecordDialog(QDialog):
         self.record_data = record_data
         self.setWindowTitle("Edit Record")
         self.setModal(True)
+
+        self.logic = receipt_entry_logic()
 
         layout = QVBoxLayout(self)
         form = QFormLayout()
@@ -35,6 +38,8 @@ class EditRecordDialog(QDialog):
         form.addRow("Image:", self.image_edit)
 
         self.image_edit.clicked.connect(self.add_images)
+        existing = record_data.get("image_path", "")
+        self.selected_image_paths = existing.split("|") if existing else []
 
         layout.addLayout(form)
 
@@ -54,19 +59,11 @@ class EditRecordDialog(QDialog):
             "expense_type":   self.expense_type_edit.text(),
             "company_name":   self.company_edit.text(),
             "image_path": (
-            self.selected_image_paths[0]
+            "|".join(self.selected_image_paths)
             if hasattr(self, "selected_image_paths") and self.selected_image_paths
             else None
             )
         }
 
     def add_images(self) -> None:
-        file_paths = QFileDialog.getOpenFileNames(
-            self,
-            "Add images",
-            "./",
-            "Images (*.png *.jpg *.jpeg *.bmp *.gif *.webp)"
-        )[0]
-
-        if file_paths:
-            self.selected_image_paths = file_paths
+        self.logic.add_image_logic(self)

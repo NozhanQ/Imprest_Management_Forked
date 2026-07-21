@@ -5,11 +5,11 @@ from app.controller.logic import calling_page_logic, exporting
 from app.data.data_base import Load_Save_Data, UserSession
 from app.controller.navigator import Navigator
 from PyQt6.QtGui import QStandardItemModel
-from PyQt6.QtWidgets import QWidget, QFileDialog, QTableView
+from PyQt6.QtWidgets import QWidget, QFileDialog, QMessageBox
 from PyQt6.QtWidgets import QAbstractItemView
 import sys
 from app.ui.Solar_Date import JalaliDateEdit
-
+from app.ui.edit_record_dialog import EditRecordDialog
 
 
 class Calling_Page(QWidget):
@@ -113,7 +113,14 @@ class Calling_Page(QWidget):
         self.export.export_tableview_to_excel(self.UI.tableView)
 
     def edit_record(self) -> None:
-        self.logic.edit_record(self.UI.tableView)
+        # Calling edit dialog
+        recored_data, record_id = self.logic.edit_record(self.UI.tableView)
+        dialog = EditRecordDialog(recored_data)
+        if dialog.exec():
+            updated = dialog.get_updated_data()
+            QMessageBox.information(None, "Edited", "Record has been edited.")
+            Load_Save_Data.update_record(record_id, updated)
+
         # Refresh the table
         self.logic.load_invoices(self.UI.rbInvoiceNo,self.UI.leInvoiceNo,
                                  self.UI.rbProjectCode,self.UI.leProjectCode,

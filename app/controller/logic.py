@@ -14,7 +14,6 @@ from pathlib import Path
 from PyQt6.QtWidgets import (
     QWidget, QMessageBox, QComboBox, QInputDialog, QMenu, QApplication, QTableView, QFileDialog, QRadioButton, QLineEdit
 )
-from app.ui.edit_record_dialog import EditRecordDialog
 from PyQt6.QtCore import Qt, QSortFilterProxyModel, QSettings, QMarginsF, QEventLoop
 from PyQt6.QtPrintSupport import QPrinter
 import sys
@@ -159,9 +158,10 @@ class receipt_entry_logic:
 
 
     def add_image_logic(self, parent) -> None:
-        new_paths = self.browse_image(parent=parent, title="Add images", start_dir="./")
+        new_paths = self.browse_image(parent=parent, title="Add images")
         if not new_paths:
             return
+        parent.selected_image_paths = new_paths
 
         # initialize if not present
         if not hasattr(self, "selected_image_paths"):
@@ -289,7 +289,7 @@ class calling_page_logic:
                 "Selection Error",
                 "Please select exactly one record to edit."
             )
-            return
+            return None
 
         row = rows[0].row()
         record_id = self.model.item(row, 0).text()
@@ -297,19 +297,14 @@ class calling_page_logic:
 
         if UserSession.role != 'admin' and created_by != UserSession.full_name:
             QMessageBox.warning(None, "Permission Denied", "You can only edit your own records.")
-            return
+            return None
 
         record_data = Load_Save_Data().get_record_by_id(record_id)
         if not record_data:
             QMessageBox.critical(None, "Error", "Record not found.")
-            return
-
-        dialog = EditRecordDialog(record_data)
-        if dialog.exec():
-            updated = dialog.get_updated_data()
-
-            QMessageBox.information(None, "Edited", "Record has been edited.")
-            Load_Save_Data.update_record(record_id, updated)
+            return None
+        else:
+            return record_data, record_id
 
     def delete_record(self, table: QTableView) -> None:
         # Get selected row
