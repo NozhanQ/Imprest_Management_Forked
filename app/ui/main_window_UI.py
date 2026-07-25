@@ -43,17 +43,17 @@ class MainWindow(QDialog):
 
     def _set_footer_text(self) -> None:
         self.UI.lblFooterLeft.setText("""
-        <div align="left">
-        <a href="about" style="
-            color: #939495;
-            text-decoration: none;
-            font-family: 'Segoe UI';
-            font-size: 10px;
-        ">
-        Nozhan Ghayati Design &amp; Developer <br>
-        Kian Farooghi Project Management &amp; QA <br><br>
-        © 2026
-        </a>
+        <div align="left" style="font-family: 'Segoe UI'; line-height: 1.5;">
+            <a href="about" style="color: #FF9800; text-decoration: none; font-size: 9px; font-weight: 600;">
+                <span style="color: rgba(255,255,255,130); font-size: 10px;">
+                Nozhan Ghayati · Design &amp; Development<br>
+                Kian Farooghi · Project Management &amp; QA
+            </span>
+            <br>
+            <span style="color: rgba(255,255,255,70); font-size: 9px;">
+                © 2026 Imprest Management
+            </span>
+            </a>
         </div>
         """)
 
