@@ -167,6 +167,7 @@ QCheckBox::indicator:checked {
 QFrame#divider {
     background-color: rgba(255,255,255,10);
 }
+
    </string>
   </property>
   <layout class="QHBoxLayout" name="rootLayout">
@@ -206,6 +207,40 @@ QFrame#divider {
       <property name="bottomMargin">
        <number>56</number>
       </property>
+      <item>
+       <widget class="QPushButton" name="lang_toggle">
+        <property name="styleSheet">
+         <string notr="true">QPushButton#lang_toggle {
+    min-width: 60px;
+    max-width: 60px;
+    min-height: 30px;
+    max-height: 30px;
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 20);
+    border: 1px solid rgba(255, 255, 255, 30);
+	color: #FF9800;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+QPushButton#lang_toggle:hover {
+    border: 1px solid rgba(255, 152, 0, 120);
+}
+
+QPushButton#lang_toggle:checked {
+    background-color: #FF9800;
+    color: #101114;
+    border: 1px solid #FF9800;
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLabel" name="lblBrand">
         <property name="text">

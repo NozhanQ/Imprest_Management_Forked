@@ -1,31 +1,47 @@
-from PyQt6.QtWidgets import QDialog, QMessageBox
+from PyQt6.QtWidgets import QDialog, QMessageBox, QApplication
+from PyQt6.QtCore import QSettings
 from PyQt6.uic import loadUi
 from pathlib import Path
 from app.controller.logic import main_window_logic
+from app.controller.i18n import set_lang
 from app.controller.navigator import Navigator
 import sys
 
 class MainWindow(QDialog):
     def __init__(self) -> None:
-
         super().__init__()
 
         if getattr(sys, 'frozen', False):
-            ui_path = Path(sys._MEIPASS) / "app" / "ui" / "main_window.ui"
+            self.ui_path = Path(sys._MEIPASS) / "app" / "ui" / "main_window.ui"
         else:
-            ui_path = Path(__file__).parent / "main_window.ui"
+            self.ui_path = Path(__file__).parent / "main_window.ui"
 
-        self.UI = loadUi(str(ui_path), self)
-        self.setWindowTitle("Login")
+        self.settings = QSettings("ImprestManagement", "App")
+        saved_lang = self.settings.value("language", "en")
+        is_fa = (saved_lang == "fa")
+        set_lang(saved_lang, QApplication.instance())
+
+        self.UI = loadUi(str(self.ui_path), self)
+        self.setWindowTitle("Imprest_Management Version 1.0")
         self.success = False
         self.role = ""
         self.username = ""
 
-        self.setWindowTitle("Imprest_Management Version 1.0")
         self.logic = main_window_logic()
-        self.nav=Navigator()
-        self.UI.btnLogin.clicked.connect(self.on_login_clicked)
+        self.nav = Navigator()
 
+        self.UI.lang_toggle.setChecked(is_fa)
+        self.UI.lang_toggle.setText("FA" if is_fa else "EN")
+
+        self._set_footer_text()
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self.UI.btnLogin.clicked.connect(self.on_login_clicked)
+        self.UI.lang_toggle.toggled.connect(self.on_language_toggled)
+        self.UI.lblFooterLeft.linkActivated.connect(self.open_about_page)
+
+    def _set_footer_text(self) -> None:
         self.UI.lblFooterLeft.setText("""
         <div align="left">
         <a href="about" style="
@@ -40,13 +56,12 @@ class MainWindow(QDialog):
         </a>
         </div>
         """)
-        self.UI.lblFooterLeft.linkActivated.connect(self.open_about_page)
 
     def on_login_clicked(self) -> None:
         username = self.UI.leUsername.text().strip()
         password = self.UI.lePassword.text()
 
-        result = main_window_logic.login(username, password)  # call class method
+        result = main_window_logic.login(username, password)
         if result.ok:
             self.success = True
             self.accept()
@@ -61,3 +76,11 @@ class MainWindow(QDialog):
             import traceback
             traceback.print_exc()
             print(f"CRASH: {e}")
+
+    def on_language_toggled(self, checked: bool):
+        lang = "fa" if checked else "en"
+        self.settings.setValue("language", lang)
+
+        self.close()
+        self.new_window = MainWindow()
+        self.new_window.show()

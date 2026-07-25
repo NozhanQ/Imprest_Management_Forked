@@ -64,15 +64,16 @@ class Expense_Receipt_Entry(QWidget):
             formatted = ""
         self.UI.leExpense.setText(f"{formatted}")
 
-
     def add_images(self) -> None:
         self.logic.add_image_logic(self)
-        self.UI.lblSelectPicture.setText(f"{len(self.logic.selected_image_paths)} image(s) selected")
+        self.UI.lblSelectPicture.setText(
+            self.tr("{0} image(s) selected").format(len(self.logic.selected_image_paths))
+        )
         self.UI.lblSelectPicture.setToolTip("\n".join(self.logic.selected_image_paths))
 
     def clear_image(self) -> None:
         self.selected_image_path = None
-        self.UI.lblSelectPicture.setText("No file selected")
+        self.UI.lblSelectPicture.setText(self.tr("No file selected"))
 
     def open_dashboard(self) -> None:
         self.nav.expense_entry_page_navigator(self)
