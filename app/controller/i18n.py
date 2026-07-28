@@ -1,5 +1,4 @@
 from PyQt6.QtCore import QTranslator
-from django.contrib.messages import success
 
 _current_translator = None
 
