@@ -32,6 +32,11 @@ class MainWindow(QDialog):
 
         self.UI.lang_toggle.setChecked(is_fa)
         self.UI.lang_toggle.setText("FA" if is_fa else "EN")
+        self.UI.lang_toggle.setAutoDefault(False)
+        self.UI.lang_toggle.setDefault(False)
+
+        self.UI.btnLogin.setAutoDefault(True)
+        self.UI.btnLogin.setDefault(True)
 
         self._set_footer_text()
         self._connect_signals()
