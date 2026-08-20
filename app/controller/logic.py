@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import traceback
-
 from openpyxl.utils import get_column_letter
 from dataclasses import dataclass
 import shutil
@@ -142,9 +140,9 @@ class receipt_entry_logic:
     def browse_image(
             self,
             parent: QWidget,
-            title: str = "add image",
+            title: str = "Add images",
             start_dir: Optional[str | Path] = None,
-        ) -> list[str]:
+    ) -> list[str]:
         start_dir_str = str(start_dir) if start_dir else ""
 
         file_paths, _ = QFileDialog.getOpenFileNames(
@@ -156,12 +154,10 @@ class receipt_entry_logic:
 
         return file_paths
 
-
     def add_image_logic(self, parent) -> None:
         new_paths = self.browse_image(parent=parent, title="Add images")
         if not new_paths:
             return
-        parent.selected_image_paths = new_paths
 
         # initialize if not present
         if not hasattr(self, "selected_image_paths"):
@@ -171,6 +167,8 @@ class receipt_entry_logic:
         for p in new_paths:
             if p not in self.selected_image_paths:
                 self.selected_image_paths.append(p)
+
+        parent.selected_image_paths = self.selected_image_paths
 
     def show_field_error(self, field_name) -> None:
         QMessageBox.warning(None,"Input Error", f"Field '{field_name}' cannot be empty.")

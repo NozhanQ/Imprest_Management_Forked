@@ -42,7 +42,6 @@ class Expense_Receipt_Entry(QWidget):
                       settings_key="company_items")
 
         self.setWindowTitle("Expense_Receipt_Entry")
-        self.selected_image_path: list[str] = []
 
         self.UI.btnAdd.clicked.connect(self.add_images)
         self.UI.btnClear.clicked.connect(self.clear_image)
@@ -72,7 +71,7 @@ class Expense_Receipt_Entry(QWidget):
         self.UI.lblSelectPicture.setToolTip("\n".join(self.logic.selected_image_paths))
 
     def clear_image(self) -> None:
-        self.selected_image_path = None
+        self.logic.selected_image_paths = []
         self.UI.lblSelectPicture.setText(self.tr("No file selected"))
 
     def open_dashboard(self) -> None:
